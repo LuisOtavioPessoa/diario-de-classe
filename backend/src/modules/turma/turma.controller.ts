@@ -42,7 +42,7 @@ export const create = async (req: Request, res: Response) => {
 
 export const list = async (req: Request, res: Response) => {
     try{
-        const { userId } = req.body;
+        const { userId } = req.params;
 
         if(!userId){
             return res.status(400).json({
@@ -50,7 +50,7 @@ export const list = async (req: Request, res: Response) => {
             });
         }
 
-        const turmas = await Turma.find({userId});
+        const turmas = await Turma.find({ userId }).sort({year: -1,name: 1,});
 
         return res.status(200).json({
             data: turmas,
@@ -66,8 +66,14 @@ export const list = async (req: Request, res: Response) => {
 
 export const deleteTurmaById = async (req: Request, res: Response) => {
     try{
-        const { id } = req.params;
+        const id = req.params.id as string;
         const { userId } = req.body;
+
+        if(!id){
+            return res.status(400).json({
+                message: "Id não informado",
+            });
+        }
 
         if(!userId){
             return res.status(400).json({

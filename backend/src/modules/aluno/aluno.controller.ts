@@ -157,7 +157,6 @@ export const updateAluno = async (req: Request, res: Response) => {
 export const deleteAlunoById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
-        const { classId } = req.body;
 
         if (!id) {
             return res.status(400).json({
@@ -171,16 +170,7 @@ export const deleteAlunoById = async (req: Request, res: Response) => {
             });
         }
 
-        if(!classId){
-            return res.status(400).json({
-                message: "classId não informado",
-            });
-        }
-
-        const aluno = await Aluno.findOneAndDelete({
-            _id: id,
-            classId,
-        });
+        const aluno = await Aluno.findByIdAndDelete(id);
 
         if(!aluno){
             return res.status(404).json({

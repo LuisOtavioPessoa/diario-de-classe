@@ -8,6 +8,12 @@ export const create = async (req: Request, res: Response) => {
     try{
         const { studentId, classId, month, year, description } = req.body;
 
+        if (!Types.ObjectId.isValid(studentId) || !Types.ObjectId.isValid(classId)) {
+            return res.status(400).json({
+                message: "Ids inválidos",
+            });
+        }
+
         if(!studentId || !classId || !month || !year || !description){
              return res.status(400).json({
                 message: "Dados obrigatórios não enviados",
