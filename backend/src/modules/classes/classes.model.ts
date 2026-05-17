@@ -1,12 +1,12 @@
 import { Schema, Types, model } from "mongoose";
 
-export interface ITurma {
+export interface IClass {
   name: string;
   year: number;
   userId: Types.ObjectId;
 }
 
-const turmaSchema = new Schema<ITurma>(
+const classSchema = new Schema<IClass>(
   {
     name: {
       type: String,
@@ -22,7 +22,7 @@ const turmaSchema = new Schema<ITurma>(
 
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "Professor",
+      ref: "Auth",
       required: true,
     }
   },
@@ -31,6 +31,6 @@ const turmaSchema = new Schema<ITurma>(
   }
 );
 
-turmaSchema.index({ name: 1, year: 1, userId: 1 }, { unique: true });
+classSchema.index({ name: 1, year: 1, userId: 1 }, { unique: true });
 
-export const Turma = model<ITurma>("Turma", turmaSchema);
+export const Class = model<IClass>("Class", classSchema);

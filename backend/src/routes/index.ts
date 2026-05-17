@@ -1,9 +1,9 @@
 import { Router } from "express";
 
-import alunoRoutes from "../modules/aluno/aluno.routes";
-import turmaRoutes from "../modules/turma/turma.routes";
-import desempenhoRoutes from "../modules/desempenho/desempenho.routes";
-import authRoutes from "../modules/professor/auth.routes";
+import alunoRoutes from "../modules/students/students.routes";
+import turmaRoutes from "../modules/classes/classes.routes";
+import desempenhoRoutes from "../modules/performances/performances.routes";
+import authRoutes from "../modules/auth/auth.routes";
 
 const router = Router();
 

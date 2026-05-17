@@ -1,6 +1,6 @@
 import {Schema, Types, model} from "mongoose";
 
-export interface IAluno{
+export interface IStudent{
     name: string;
     birthDate: Date;
     gender: 'male' | 'female';
@@ -8,7 +8,7 @@ export interface IAluno{
     classId: Types.ObjectId,
 }
 
-const alunoSchema = new Schema<IAluno>(
+const studentSchema = new Schema<IStudent>(
     {
         name: {
             type: String,
@@ -39,7 +39,7 @@ const alunoSchema = new Schema<IAluno>(
 
         classId: {
             type: Schema.Types.ObjectId,
-            ref: "Turma",
+            ref: "Class",
             required: true,
         },
     },
@@ -48,6 +48,6 @@ const alunoSchema = new Schema<IAluno>(
     }
 );
 
-alunoSchema.index({ name: 1, classId: 1 }, { unique: true });
+studentSchema.index({ name: 1, classId: 1 }, { unique: true });
 
-export const Aluno = model<IAluno>("Aluno", alunoSchema);
+export const Student = model<IStudent>("Student", studentSchema);

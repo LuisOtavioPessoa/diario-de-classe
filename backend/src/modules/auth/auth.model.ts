@@ -1,12 +1,12 @@
 import { Schema, model } from "mongoose";
 
-export interface IProfessor {
+export interface IAuth {
   name: string;
   email: string;
   password: string;
 }
 
-const professorSchema = new Schema<IProfessor>(
+const AuthSchema = new Schema<IAuth>(
   {
     name: {
       type: String,
@@ -33,6 +33,6 @@ const professorSchema = new Schema<IProfessor>(
   }
 );
 
-professorSchema.index({ email: 1 }, { unique: true });
+AuthSchema.index({ email: 1 }, { unique: true });
 
-export const Professor = model<IProfessor>("Professor", professorSchema);
+export const Auth = model<IAuth>("Auth", AuthSchema);

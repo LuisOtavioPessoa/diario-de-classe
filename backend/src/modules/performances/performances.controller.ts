@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { Desempenho } from "./desempenho.model";
-import { Aluno } from "../aluno/aluno.model";
-import { Turma } from "../turma/turma.model";
+import { Performance } from "./performances.model";
+import { Student } from "../students/students.model";
+import { Class } from "../classes/classes.model";
 import { Types } from "mongoose";
 
 export const create = async (req: Request, res: Response) => {
@@ -20,43 +20,43 @@ export const create = async (req: Request, res: Response) => {
             });
         }
 
-        const turma = await Turma.findById(classId);
+        const classExists = await Class.findById(classId);
 
-        if(!turma){
+        if(!classExists){
             return res.status(404).json({
                 message: "Turma não encontrada",
             });
         }
 
-        const aluno = await Aluno.findById(studentId);
+        const student = await Student.findById(studentId);
 
-        if(!aluno){
+        if(!student){
             return res.status(404).json({
                 message: "Aluno(a) não encontrado(a)",
             });
         }
 
         // valida se o aluno pertence à turma
-        if(aluno.classId.toString() !== classId){
+        if(student.classId.toString() !== classId){
             return res.status(400).json({
                 message: "O aluno(a) não pertence à turma informada.",
             });
         }
 
         // valida duplicidade de desempenho
-        const desempenhoExists = await Desempenho.findOne({
+        const performanceExists = await Performance.findOne({
             studentId,
             month,
             year,
         });
 
-        if(desempenhoExists){
+        if(performanceExists){
             return res.status(409).json({
                 message: "Já existe um desempenho para esse aluno nesse mês e ano",
             });
         }
 
-        const desempenho = await Desempenho.create({
+        const performance = await Performance.create({
             studentId,
             classId,
             month,
@@ -66,7 +66,7 @@ export const create = async (req: Request, res: Response) => {
 
         return res.status(201).json({
             message: "Desempenho criado com sucesso",
-            data: desempenho,
+            data: performance,
         });
 
     }catch(error){
@@ -94,19 +94,19 @@ export const listByStudent = async (req: Request, res: Response) => {
             });
         }
 
-        const aluno = await Aluno.findById(studentId);
+        const student = await Student.findById(studentId);
 
-        if(!aluno){
+        if(!student){
             return res.status(404).json({
                 message: "Aluno(a) não encontrada",
             });
         }
 
-        const desempenhosAluno = await Desempenho.find({studentId}).sort({ year: -1, month: -1, });
+        const performances = await Performance.find({studentId}).sort({ year: -1, month: -1, });
 
         return res.status(200).json({
             message: "Desempenhos do aluno(a) listados com sucesso",
-            data: desempenhosAluno,
+            data: performances,
         });
     }catch(error){
         console.error(error);
@@ -142,21 +142,21 @@ export const getPerformanceByMonth = async (req: Request,res: Response) => {
       });
     }
 
-    const aluno = await Aluno.findById(studentId);
+    const student = await Student.findById(studentId);
 
-    if (!aluno) {
+    if (!student) {
       return res.status(404).json({
         message: "Aluno(a) não encontrado(a)",
       });
     }
 
-    const desempenhoEspecifico = await Desempenho.findOne({
+    const performance = await Performance.findOne({
       studentId,
       month,
       year,
     });
 
-    if (!desempenhoEspecifico) {
+    if (!performance) {
       return res.status(404).json({
         message: "Desempenho não encontrado",
       });
@@ -164,7 +164,7 @@ export const getPerformanceByMonth = async (req: Request,res: Response) => {
 
     return res.status(200).json({
       message: "Desempenho específico do(a) aluno(a) listado com sucesso",
-      data: desempenhoEspecifico,
+      data: performance,
     });
 
   } catch (error) {
@@ -176,7 +176,7 @@ export const getPerformanceByMonth = async (req: Request,res: Response) => {
   }
 };
 
-export const updateDesempenho = async (req: Request, res: Response) => {
+export const updatePerformance = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
@@ -200,7 +200,7 @@ export const updateDesempenho = async (req: Request, res: Response) => {
         });
         }
 
-        const desempenhoUpdate = await Desempenho.findByIdAndUpdate(
+        const performanceUpdate = await Performance.findByIdAndUpdate(
             id,
             {
                 description,
@@ -211,7 +211,7 @@ export const updateDesempenho = async (req: Request, res: Response) => {
             }
         );
 
-        if(!desempenhoUpdate ){
+        if(!performanceUpdate){
             return res.status(404).json({
                 message: "Desempenho não encontrado",
             });
@@ -219,7 +219,7 @@ export const updateDesempenho = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             message: "Desempenho atualizado com sucesso",
-            data: desempenhoUpdate,
+            data: performanceUpdate,
         });
         
     }catch(error){
@@ -231,7 +231,7 @@ export const updateDesempenho = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteDesempenhoById = async (req: Request, res: Response) => {
+export const deletePerformanceById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
@@ -247,9 +247,9 @@ export const deleteDesempenhoById = async (req: Request, res: Response) => {
             });
         }
 
-        const desempenho = await Desempenho.findByIdAndDelete(id);
+        const performance = await Performance.findByIdAndDelete(id);
 
-        if(!desempenho){
+        if(!performance){
             return res.status(404).json({
                 message: "Desempenho não encontrado",
             });

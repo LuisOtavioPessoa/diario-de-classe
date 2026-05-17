@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { Turma } from "./turma.model";
-import { Professor } from "../professor/professor.model";
+import { Class } from "./classes.model";
+import { Auth } from "../auth/auth.model";
 
 export const create = async (req: Request, res: Response) => {
     try{
@@ -12,15 +12,15 @@ export const create = async (req: Request, res: Response) => {
             });
         }
 
-        const professor = await Professor.findById(userId);
+        const user = await Auth.findById(userId);
 
-        if(!professor){
+        if(!user){
             return res.status(404).json({
                 message: "Professor não encontrado",
             });
         }
 
-        const turma = await Turma.create({
+        const classCreated = await Class.create({
             name,
             year,
             userId,
@@ -28,7 +28,7 @@ export const create = async (req: Request, res: Response) => {
 
         return res.status(201).json({
             message: "Turma criada com sucesso",
-            data: turma,
+            data: classCreated ,
         });
 
     } catch(error){
@@ -50,10 +50,10 @@ export const list = async (req: Request, res: Response) => {
             });
         }
 
-        const turmas = await Turma.find({ userId }).sort({year: -1,name: 1,});
+        const classes = await Class.find({ userId }).sort({year: -1,name: 1,});
 
         return res.status(200).json({
-            data: turmas,
+            data: classes,
         });
     } catch(error){
         console.error(error);
@@ -81,12 +81,12 @@ export const deleteTurmaById = async (req: Request, res: Response) => {
             });
         }
 
-        const turma = await Turma.findOneAndDelete({
+        const classDeleted = await Class.findOneAndDelete({
             _id: id,
             userId,
         });
 
-        if(!turma){
+        if(!classDeleted){
             return res.status(404).json({
                 message: "Turma não encontrada",
             });

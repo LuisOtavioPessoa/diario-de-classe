@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Professor } from "./professor.model";
+import { Auth } from "./auth.model";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -14,11 +14,11 @@ export const register = async (req: Request, res: Response) => {
             });
         }
 
-        const professorExists = await Professor.findOne({
+        const authExists = await Auth.findOne({
             email,
         });
 
-        if(professorExists){
+        if(authExists){
             return res.status(409).json({
                 message: "Email já cadastrado",
             });
@@ -29,18 +29,18 @@ export const register = async (req: Request, res: Response) => {
             10
         );
 
-        const professor = await Professor.create({
+        const auth = await Auth.create({
             name,
             email,
             password: hashedPassword,
         });
 
         return res.status(201).json({
-            message: "Professor criado com sucesso",
+            message: "Auth criado com sucesso",
             data: {
-                id: professor._id,
-                name: professor.name,
-                email: professor.email,
+                id: auth._id,
+                name: auth.name,
+                email: auth.email,
             },
         });
     }catch(error){
@@ -62,11 +62,11 @@ export const login = async (req: Request, res: Response) => {
             });
         }
 
-        const professor = await Professor.findOne({
+        const auth = await Auth.findOne({
             email,
         });
 
-        if(!professor){
+        if(!auth){
             return res.status(404).json({
                 message: "Email ou senha inválidos",
             });
@@ -74,7 +74,7 @@ export const login = async (req: Request, res: Response) => {
 
         const passwordMatch = await bcrypt.compare(
             password,
-            professor.password,
+            auth.password,
         );
 
         if(!passwordMatch){
@@ -85,7 +85,7 @@ export const login = async (req: Request, res: Response) => {
 
         const token = jwt.sign(
             {
-                id: professor._id,
+                id: auth._id,
             },
             process.env.JWT_SECRET as string,
             {
@@ -96,10 +96,10 @@ export const login = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Login realizado com sucesso",
             token,
-            professor: {
-                id: professor._id,
-                name: professor.name,
-                email: professor.email,
+            Auth: {
+                id: auth._id,
+                name: auth.name,
+                email: auth.email,
             },
         });
     }catch(error){

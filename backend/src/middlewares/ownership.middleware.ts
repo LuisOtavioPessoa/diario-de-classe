@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import {JwtPayload} from "jsonwebtoken";
-import { Turma } from "../modules/turma/turma.model";
+import { Turma } from "../modules/classes/classes.model";
 
 export const ownershipMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     try{

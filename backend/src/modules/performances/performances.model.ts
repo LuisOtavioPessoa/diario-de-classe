@@ -1,6 +1,6 @@
 import { Schema, Types, model} from 'mongoose';
 
-export interface IDesempenho{
+export interface IPerformance{
     studentId: Types.ObjectId,
     classId: Types.ObjectId,
     month: number;
@@ -8,17 +8,17 @@ export interface IDesempenho{
     description: string;
 }
 
-const desempenhoSchema = new Schema<IDesempenho>(
+const performanceSchema = new Schema<IPerformance>(
     {
         studentId: {
             type: Schema.Types.ObjectId,
-            ref: "Aluno",
+            ref: "Student",
             required: true,
         },
 
         classId: {
             type: Schema.Types.ObjectId,
-            ref: "Turma",
+            ref: "Class",
             required: true,
         },
 
@@ -47,6 +47,6 @@ const desempenhoSchema = new Schema<IDesempenho>(
     },
 );
 
-desempenhoSchema.index({ studentId: 1, month: 1, year: 1 }, { unique: true });
+performanceSchema.index({ studentId: 1, month: 1, year: 1 }, { unique: true });
 
-export const Desempenho = model<IDesempenho>("Desempenho", desempenhoSchema);
+export const Performance = model<IPerformance>("Performance", performanceSchema);
