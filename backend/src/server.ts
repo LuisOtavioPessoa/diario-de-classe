@@ -18,11 +18,17 @@ const connectDB = async (): Promise<void> => {
 
     await mongoose.connect(mongoUri);
 
-    console.log("Conectado ao MongoDB");
+    console.log("MongoDB conectado com sucesso");
+
+    app.listen(PORT, () => {
+      console.log(
+        `Servidor rodando na porta ${PORT}`
+      );
+    });
 
   } catch (error) {
     console.error(
-      "Deu erro ao conectar com o MongoDB:",
+      "Erro ao conectar com o MongoDB:",
       error
     );
 
@@ -31,9 +37,3 @@ const connectDB = async (): Promise<void> => {
 };
 
 connectDB();
-
-app.listen(PORT, () => {
-  console.log(
-    `O servidor está rodando na porta ${PORT}`
-  );
-});
