@@ -8,18 +8,6 @@ export const create = async (req: Request, res: Response) => {
     try{
         const { studentId, classId, month, year, description } = req.body;
 
-        if (!Types.ObjectId.isValid(studentId) || !Types.ObjectId.isValid(classId)) {
-            return res.status(400).json({
-                message: "Ids inválidos",
-            });
-        }
-
-        if(!studentId || !classId || !month || !year || !description){
-             return res.status(400).json({
-                message: "Dados obrigatórios não enviados",
-            });
-        }
-
         const classExists = await Class.findById(classId);
 
         if(!classExists){
@@ -82,18 +70,6 @@ export const listByStudent = async (req: Request, res: Response) => {
     try{
         const studentId = req.params.studentId as string;
 
-        if(!studentId){
-            return res.status(400).json({
-                message: "studentId não informado",
-            });
-        }
-
-        if (!Types.ObjectId.isValid(studentId)) {
-            return res.status(400).json({
-                message: "studentId inválido",
-            });
-        }
-
         const student = await Student.findById(studentId);
 
         if(!student){
@@ -108,6 +84,7 @@ export const listByStudent = async (req: Request, res: Response) => {
             message: "Desempenhos do aluno(a) listados com sucesso",
             data: performances,
         });
+
     }catch(error){
         console.error(error);
 
@@ -123,24 +100,6 @@ export const getPerformanceByMonth = async (req: Request,res: Response) => {
 
     const month = Number(req.query.month);
     const year = Number(req.query.year);
-
-    if (!month || !year) {
-      return res.status(400).json({
-        message: "month e year são obrigatórios",
-      });
-    }
-
-    if (!studentId) {
-      return res.status(400).json({
-        message: "studentId não informado",
-      });
-    }
-
-    if (!Types.ObjectId.isValid(studentId)) {
-      return res.status(400).json({
-        message: "studentId inválido",
-      });
-    }
 
     const student = await Student.findById(studentId);
 
@@ -182,24 +141,6 @@ export const updatePerformance = async (req: Request, res: Response) => {
 
         const { description } = req.body;
 
-        if(!id){
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
-
-        if(!Types.ObjectId.isValid(id)){
-            return res.status(400).json({
-                message: "Id inválido",
-            });
-        }
-
-        if (!description) {
-        return res.status(400).json({
-            message: "Descrição não enviada",
-        });
-        }
-
         const performanceUpdate = await Performance.findByIdAndUpdate(
             id,
             {
@@ -235,18 +176,6 @@ export const deletePerformanceById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
-        if(!id){
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
-
-        if(!Types.ObjectId.isValid(id)){
-            return res.status(400).json({
-                message: "Id inválido",
-            });
-        }
-
         const performance = await Performance.findByIdAndDelete(id);
 
         if(!performance){
@@ -258,6 +187,7 @@ export const deletePerformanceById = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Desempenho deletado com sucesso",
         });
+        
     }catch(error){
         console.error(error);
 

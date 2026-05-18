@@ -1,29 +1,29 @@
 import { Request, Response } from "express";
 import { Class } from "./classes.model";
-import { Auth } from "../auth/auth.model";
+import { JwtPayload } from "jsonwebtoken";
 
 export const create = async (req: Request, res: Response) => {
     try{
-        const { name, year, userId } = req.body;
+        const { name, year } = req.body;
 
-        if(!name || !year || !userId){
-            return res.status(400).json({
-                message: "Dados obrigatórios não enviados",
-            });
-        }
+        const user = req.user as JwtPayload;
 
-        const user = await Auth.findById(userId);
+        const classExists = await Class.findOne({
+            name,
+            year,
+            userId: user.id,
+        })
 
-        if(!user){
-            return res.status(404).json({
-                message: "Professor não encontrado",
-            });
+        if (classExists) {
+        return res.status(409).json({
+            message: "Já existe uma turma com esse nome nesse ano",
+        });
         }
 
         const classCreated = await Class.create({
             name,
             year,
-            userId,
+            userId: user.id,
         });
 
         return res.status(201).json({
@@ -42,19 +42,14 @@ export const create = async (req: Request, res: Response) => {
 
 export const list = async (req: Request, res: Response) => {
     try{
-        const { userId } = req.params;
+        const user = req.user as JwtPayload;
 
-        if(!userId){
-            return res.status(400).json({
-                message: "userId não informado",
-            });
-        }
-
-        const classes = await Class.find({ userId }).sort({year: -1,name: 1,});
+        const classes = await Class.find({ userId: user.id, }).sort({year: -1, name: 1,});
 
         return res.status(200).json({
             data: classes,
         });
+
     } catch(error){
         console.error(error);
 
@@ -64,29 +59,13 @@ export const list = async (req: Request, res: Response) => {
     }
 };
 
-export const deleteTurmaById = async (req: Request, res: Response) => {
+export const deleteClassById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
-        const { userId } = req.body;
 
-        if(!id){
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
+        const classDeleted = await Class.findByIdAndDelete(id);
 
-        if(!userId){
-            return res.status(400).json({
-                message: "userId não informado",
-            });
-        }
-
-        const classDeleted = await Class.findOneAndDelete({
-            _id: id,
-            userId,
-        });
-
-        if(!classDeleted){
+        if (!classDeleted) {
             return res.status(404).json({
                 message: "Turma não encontrada",
             });

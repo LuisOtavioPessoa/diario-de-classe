@@ -8,12 +8,6 @@ export const register = async (req: Request, res: Response) => {
     try{
         const { name, email, password} = req.body;
 
-        if(!name || !email || !password){
-            return res.status(400).json({
-                message: "Dados obrigatórios não enviados",
-            });
-        }
-
         const authExists = await Auth.findOne({
             email,
         });
@@ -43,6 +37,7 @@ export const register = async (req: Request, res: Response) => {
                 email: auth.email,
             },
         });
+
     }catch(error){
         console.error(error);
 
@@ -56,18 +51,12 @@ export const login = async (req: Request, res: Response) => {
     try{
         const { email, password } = req.body;
 
-        if(!email || !password){
-            return res.status(400).json({
-                message: "Dados obrigatórios não enviados",
-            });
-        }
-
         const auth = await Auth.findOne({
             email,
         });
 
         if(!auth){
-            return res.status(404).json({
+            return res.status(401).json({
                 message: "Email ou senha inválidos",
             });
         }
@@ -96,17 +85,18 @@ export const login = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Login realizado com sucesso",
             token,
-            Auth: {
+            user: {
                 id: auth._id,
                 name: auth.name,
                 email: auth.email,
             },
         });
+
     }catch(error){
         console.error(error);
 
         return res.status(500).json({
-        message: "Erro interno do servidor",
+            message: "Erro interno do servidor",
         });       
     }
 };

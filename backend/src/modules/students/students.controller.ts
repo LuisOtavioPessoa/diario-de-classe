@@ -1,23 +1,25 @@
 import { Request, Response } from "express";
 import { Student } from "./students.model";
 import { Class } from "../classes/classes.model";
-import { Types } from "mongoose";
+import { JwtPayload } from "jsonwebtoken";
 
 export const create = async (req: Request, res: Response) => {
     try{
         const { name, birthDate, gender, disability, classId } = req.body;
 
-        if(!name || !birthDate || !gender || !classId){
-            return res.status(400).json({
-                message: "Dados obrigatórios não enviados",
-            });
-        }
+        const user = req.user as JwtPayload;
 
         const classExists = await Class.findById(classId);
 
         if(!classExists){
             return res.status(404).json({
                 message: "Turma não encontrada",
+            });
+        }
+
+        if (classExists.userId.toString() !== user.id) {
+            return res.status(403).json({
+                message: "Acesso negado",
             });
         }
 
@@ -33,6 +35,7 @@ export const create = async (req: Request, res: Response) => {
             message: "Aluno criado com sucesso",
             data: student,
         });
+
     }catch(error){
         console.error(error);
 
@@ -46,11 +49,7 @@ export const listByClass = async (req: Request, res: Response) => {
     try{
         const { classId } = req.params;
 
-        if(!classId){
-            return res.status(400).json({
-                message: "classId não informado",
-            });
-        }
+        const user = req.user as JwtPayload;
 
         const classExists = await Class.findById(classId);
 
@@ -60,11 +59,18 @@ export const listByClass = async (req: Request, res: Response) => {
             });
         }
 
+        if (classExists.userId.toString() !== user.id) {
+            return res.status(403).json({
+                message: "Acesso negado",
+            });
+        }
+
         const students = await Student.find({classId}).sort({ name: 1});
 
         return res.status(200).json({
             data: students,
         });
+
     } catch(error){
         console.error(error);
 
@@ -78,18 +84,6 @@ export const listById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
-        if(!id){
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
-
-        if(!Types.ObjectId.isValid(id)){
-            return res.status(400).json({
-                message: "Id inválido",
-            });
-        }
-
         const student = await Student.findById(id);
 
         if(!student){
@@ -101,6 +95,7 @@ export const listById = async (req: Request, res: Response) => {
         return res.status(200).json({
             data: student,
         });
+
     } catch(error){
         console.error(error);
 
@@ -113,18 +108,6 @@ export const listById = async (req: Request, res: Response) => {
 export const updateStudent = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
-
-        if(!id){
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
-
-        if(!Types.ObjectId.isValid(id)){
-            return res.status(400).json({
-                message: "Id inválido",
-            });
-        }
 
         const updatedStudent = await Student.findByIdAndUpdate(
             id,
@@ -145,6 +128,7 @@ export const updateStudent = async (req: Request, res: Response) => {
             message: "Aluno(a) atualizado(a) com sucesso",
             data: updatedStudent,
         });
+
     }catch(error){
         console.error(error);
 
@@ -158,21 +142,9 @@ export const deleteStudentById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
-        if (!id) {
-            return res.status(400).json({
-                message: "Id não informado",
-            });
-        }
+        const deletedStudent = await Student.findByIdAndDelete(id);
 
-        if (!Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                message: "Id inválido",
-            });
-        }
-
-        const student = await Student.findByIdAndDelete(id);
-
-        if(!student){
+        if(!deletedStudent){
             return res.status(404).json({
                 message: "Aluno(a) não encontrado(a)",
             });
@@ -181,6 +153,7 @@ export const deleteStudentById = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: "Aluno(a) deletado(a) com sucesso",
         });
+        
     }catch(error){
         console.error(error);
 
