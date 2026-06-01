@@ -24,7 +24,7 @@ router.get(
 router.delete(
     "/:id", 
     authMiddleware,
-    validateObjectId,
+    validateObjectId(),
     classOwnershipMiddleware,
     deleteClassById
 );

@@ -36,41 +36,53 @@ export const classOwnershipMiddleware = async(req: Request, res: Response, next:
 
 // OWNERSHIP POR ALUNO
 
-export const studentOwnershipMiddleware = async(req: Request, res: Response, next: NextFunction) => {
-    try{
-        const studentId = req.params.id as string;
+export const studentOwnershipMiddleware = (
+    paramName: string = "id"
+) => {
+    return async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+        try {
+            const studentId = req.params[paramName];
 
-        const student = await Student.findById(studentId);
+            const student = await Student.findById(studentId);
 
-        if(!student){
-            return res.status(404).json({
-                message: "Aluno(a) não encontrado(a)",
-            })
-        }
+            if (!student) {
+                return res.status(404).json({
+                    message: "Aluno(a) não encontrado(a)",
+                });
+            }
 
-        const classExists = await Class.findById(student.classId);
+            const classExists = await Class.findById(
+                student.classId
+            );
 
-        if (!classExists) {
-            return res.status(404).json({
-                message: "Turma não encontrada",
+            if (!classExists) {
+                return res.status(404).json({
+                    message: "Turma não encontrada",
+                });
+            }
+
+            if (
+                classExists.userId.toString() !== req.user.id
+            ) {
+                return res.status(403).json({
+                    message: "Acesso negado",
+                });
+            }
+
+            next();
+
+        } catch (error) {
+            console.error(error);
+
+            return res.status(500).json({
+                message: "Erro interno do servidor",
             });
         }
-
-        if(classExists.userId.toString() !== req.user.id){
-            return res.status(403).json({
-                message: "Acesso negado",
-            });
-        }
-
-        next();
-
-    }catch(error){
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Erro interno do servidor",
-        });
-    }
+    };
 };
 
 // OWNERSHIP POR DESEMPENHO

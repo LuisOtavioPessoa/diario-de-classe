@@ -4,6 +4,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
 import { createStudentSchema, updateStudentSchema} from "../../schemas/students.schemas";
+import { studentOwnershipMiddleware } from "../../middlewares/ownership.middleware";
 
 const router = Router();
 
@@ -17,25 +18,29 @@ router.post(
 
 router.get(
     "/class/:classId", 
+    validateObjectId("classId"),
     listByClass
 );
 
 router.get(
     "/:id",
-    validateObjectId, 
+    validateObjectId(), 
+    studentOwnershipMiddleware(),
     listById
 );
 
 router.put(
     "/:id", 
-    validateObjectId,
+    validateObjectId(),
+    studentOwnershipMiddleware(),
     validate(updateStudentSchema),
     updateStudent
 );
 
 router.delete(
     "/:id",
-    validateObjectId,
+    validateObjectId(),
+    studentOwnershipMiddleware(),
     deleteStudentById
 );
 

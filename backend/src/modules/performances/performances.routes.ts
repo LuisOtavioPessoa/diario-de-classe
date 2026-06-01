@@ -4,6 +4,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
 import { createPerformanceSchema, updatePerformanceSchema,getPerformanceByMonthSchema } from "../../schemas/performances.schemas";
+import { studentOwnershipMiddleware, performanceOwnershipMiddleware } from "../../middlewares/ownership.middleware";
 
 const router = Router();
 
@@ -15,30 +16,36 @@ router.post(
 );
 
 router.get(
-    "/student/:studentId", 
+    "/student/:studentId",
     authMiddleware,
-    listByStudent,
+    validateObjectId("studentId"),
+    studentOwnershipMiddleware("studentId"),
+    listByStudent
 );
 
 router.get(
     "/student/:studentId/month",
     authMiddleware,
-    validate(getPerformanceByMonthSchema), 
+    validateObjectId("studentId"),
+    studentOwnershipMiddleware("studentId"),
+    validate(getPerformanceByMonthSchema),
     getPerformanceByMonth
 );
 
 router.put(
-    "/:id", 
+    "/:id",
     authMiddleware,
-    validateObjectId,
+    validateObjectId(),
+    performanceOwnershipMiddleware,
     validate(updatePerformanceSchema),
     updatePerformance
 );
 
 router.delete(
-    "/:id", 
+    "/:id",
     authMiddleware,
-    validateObjectId,
+    validateObjectId(),
+    performanceOwnershipMiddleware,
     deletePerformanceById
 );
 
