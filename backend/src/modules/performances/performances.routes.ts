@@ -3,7 +3,7 @@ import { create , listByStudent , getPerformanceByMonth, updatePerformance, dele
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
-import { createPerformanceSchema, updatePerformanceSchema,getPerformanceByMonthSchema } from "./performances.schemas";
+import { createPerformanceSchema, updatePerformanceSchema,getPerformanceByMonthSchema } from "../../schemas/performances.schemas";
 
 const router = Router();
 

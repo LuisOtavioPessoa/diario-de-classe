@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import {JwtPayload} from "jsonwebtoken";
 import { Class} from "../modules/classes/classes.model";
 import { Student } from "../modules/students/students.model";
 import { Performance } from "../modules/performances/performances.model";
@@ -10,8 +9,6 @@ export const classOwnershipMiddleware = async(req: Request, res: Response, next:
     try{
         const classId = req.params.id as string;
 
-        const user = req.user as JwtPayload;
-
         const classExists = await Class.findById(classId);
 
         if(!classExists){
@@ -20,7 +17,7 @@ export const classOwnershipMiddleware = async(req: Request, res: Response, next:
             })
         }
 
-        if(classExists.userId.toString() !== user.id){
+        if(classExists.userId.toString() !== req.user.id){
             return res.status(403).json({
                 message: "Acesso negado",
             });
@@ -43,8 +40,6 @@ export const studentOwnershipMiddleware = async(req: Request, res: Response, nex
     try{
         const studentId = req.params.id as string;
 
-        const user = req.user as JwtPayload;
-
         const student = await Student.findById(studentId);
 
         if(!student){
@@ -61,7 +56,7 @@ export const studentOwnershipMiddleware = async(req: Request, res: Response, nex
             });
         }
 
-        if(classExists.userId.toString() !== user.id){
+        if(classExists.userId.toString() !== req.user.id){
             return res.status(403).json({
                 message: "Acesso negado",
             });
@@ -84,8 +79,6 @@ export const performanceOwnershipMiddleware = async(req: Request, res: Response,
     try{
         const performanceId = req.params.id as string;
 
-        const user = req.user as JwtPayload;
-
         const performance = await Performance.findById(performanceId);
 
         if (!performance) {
@@ -102,7 +95,7 @@ export const performanceOwnershipMiddleware = async(req: Request, res: Response,
             });
         }
 
-        if(classExists.userId.toString() !== user.id){
+        if(classExists.userId.toString() !== req.user.id){
             return res.status(403).json({
                 message: "Acesso negado",
             });

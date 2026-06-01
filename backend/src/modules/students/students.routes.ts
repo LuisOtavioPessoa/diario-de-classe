@@ -3,7 +3,7 @@ import { create, listByClass, listById , updateStudent, deleteStudentById} from 
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
-import { createStudentSchema, updateStudentSchema} from "./students.schemas";
+import { createStudentSchema, updateStudentSchema} from "../../schemas/students.schemas";
 
 const router = Router();
 

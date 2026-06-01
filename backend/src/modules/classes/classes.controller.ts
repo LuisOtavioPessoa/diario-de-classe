@@ -1,17 +1,14 @@
 import { Request, Response } from "express";
 import { Class } from "./classes.model";
-import { JwtPayload } from "jsonwebtoken";
 
 export const create = async (req: Request, res: Response) => {
     try{
         const { name, year } = req.body;
 
-        const user = req.user as JwtPayload;
-
         const classExists = await Class.findOne({
             name,
             year,
-            userId: user.id,
+            userId: req.user.id,
         })
 
         if (classExists) {
@@ -23,7 +20,7 @@ export const create = async (req: Request, res: Response) => {
         const classCreated = await Class.create({
             name,
             year,
-            userId: user.id,
+            userId: req.user.id,
         });
 
         return res.status(201).json({
@@ -42,9 +39,8 @@ export const create = async (req: Request, res: Response) => {
 
 export const list = async (req: Request, res: Response) => {
     try{
-        const user = req.user as JwtPayload;
 
-        const classes = await Class.find({ userId: user.id, }).sort({year: -1, name: 1,});
+        const classes = await Class.find({ userId: req.user.id, }).sort({year: -1, name: 1,});
 
         return res.status(200).json({
             data: classes,

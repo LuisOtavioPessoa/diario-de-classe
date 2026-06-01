@@ -1,13 +1,10 @@
 import { Request, Response } from "express";
 import { Student } from "./students.model";
 import { Class } from "../classes/classes.model";
-import { JwtPayload } from "jsonwebtoken";
 
 export const create = async (req: Request, res: Response) => {
     try{
         const { name, birthDate, gender, disability, classId } = req.body;
-
-        const user = req.user as JwtPayload;
 
         const classExists = await Class.findById(classId);
 
@@ -17,7 +14,7 @@ export const create = async (req: Request, res: Response) => {
             });
         }
 
-        if (classExists.userId.toString() !== user.id) {
+        if (classExists.userId.toString() !== req.user.id) {
             return res.status(403).json({
                 message: "Acesso negado",
             });
@@ -49,8 +46,6 @@ export const listByClass = async (req: Request, res: Response) => {
     try{
         const { classId } = req.params;
 
-        const user = req.user as JwtPayload;
-
         const classExists = await Class.findById(classId);
 
         if(!classExists){
@@ -59,7 +54,7 @@ export const listByClass = async (req: Request, res: Response) => {
             });
         }
 
-        if (classExists.userId.toString() !== user.id) {
+        if (classExists.userId.toString() !== req.user.id) {
             return res.status(403).json({
                 message: "Acesso negado",
             });
