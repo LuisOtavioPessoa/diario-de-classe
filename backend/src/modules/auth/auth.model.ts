@@ -17,8 +17,8 @@ const AuthSchema = new Schema<IAuth>(
     email: {
       type: String,
       required: true,
-      trim: true,
       unique: true,
+      trim: true,
       lowercase: true,
     },
 
@@ -32,7 +32,5 @@ const AuthSchema = new Schema<IAuth>(
     timestamps: true,
   }
 );
-
-AuthSchema.index({ email: 1 }, { unique: true });
 
 export const Auth = model<IAuth>("Auth", AuthSchema);
