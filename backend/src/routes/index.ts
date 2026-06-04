@@ -1,17 +1,17 @@
 import { Router } from "express";
 
-import alunoRoutes from "../modules/students/students.routes";
-import turmaRoutes from "../modules/classes/classes.routes";
-import desempenhoRoutes from "../modules/performances/performances.routes";
+import studentsRoutes from "../modules/students/students.routes";
+import classesRoutes from "../modules/classes/classes.routes";
+import performancesRoutes from "../modules/performances/performances.routes";
 import authRoutes from "../modules/auth/auth.routes";
 
 const router = Router();
 
-router.use("/students", alunoRoutes);
+router.use("/students", studentsRoutes);
 
-router.use("/classes", turmaRoutes);
+router.use("/classes", classesRoutes);
 
-router.use("/performances", desempenhoRoutes);
+router.use("/performances", performancesRoutes);
 
 router.use("/auth", authRoutes);
 

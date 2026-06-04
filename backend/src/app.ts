@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(
-    "/docs",
+    "/school-docs",
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec)
 );

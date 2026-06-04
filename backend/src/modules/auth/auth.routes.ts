@@ -7,13 +7,6 @@ const router = Router();
 
 /**
  * @swagger
- * tags:
- *   name: Auth
- *   description: Autenticação de usuários
- */
-
-/**
- * @swagger
  * /api/auth/register:
  *   post:
  *     summary: Cadastrar um novo usuário
@@ -29,12 +22,14 @@ const router = Router();
  *         description: Usuário cadastrado com sucesso
  *         content:
  *           application/json:
- *             example:
- *               message: Auth criado com sucesso
- *               data:
- *                 id: "687e8e8c2b8f6d8c7f8a1234"
- *                 name: "Luís Otávio"
- *                 email: "luis@email.com"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Auth criado com sucesso
+ *                 data:
+ *                   $ref: '#/components/schemas/RegisterResponse'
  *
  *       409:
  *         description: Email já cadastrado
@@ -72,13 +67,14 @@ router.post(
  *         description: Login realizado com sucesso
  *         content:
  *           application/json:
- *             example:
- *               message: Login realizado com sucesso
- *               token: "jwt.token.aqui"
- *               user:
- *                 id: "687e8e8c2b8f6d8c7f8a1234"
- *                 name: "Luís Otávio"
- *                 email: "luis@email.com"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Login realizado com sucesso
+ *                 data:
+ *                   $ref: '#/components/schemas/LoginResponse'
  *
  *       401:
  *         description: Email ou senha inválidos
