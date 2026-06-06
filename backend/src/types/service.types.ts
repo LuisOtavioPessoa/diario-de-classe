@@ -1,13 +1,17 @@
+export type ServiceError = {
+    error: true;
+    status: number;
+    message: string;
+};
+
+export type ServiceSuccess<T> = {
+    error: false;
+    data: T;
+};
+
 export type ServiceResponse<T = undefined> =
-    | {
-          error: true;
-          status: number;
-          message: string;
-      }
-    | {
-          error: false;
-          data: T;
-      };
+    | ServiceError
+    | ServiceSuccess<T>;
 
 export interface PaginationMetadata {
     page: number;
@@ -16,7 +20,10 @@ export interface PaginationMetadata {
     totalPages: number;
 }
 
-export interface PaginatedResponse<T> {
-    data: T[];
-    pagination: PaginationMetadata;
-}
+export type PaginatedResponse<T> =
+    | ServiceError
+    | {
+          error: false;
+          data: T[];
+          pagination: PaginationMetadata;
+      };

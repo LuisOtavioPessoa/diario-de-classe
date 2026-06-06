@@ -1,6 +1,6 @@
 import { Student } from "./students.model";
 import { Class } from "../classes/classes.model";
-import { ServiceResponse } from "../../types/service.types";
+import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { IStudent , StudentDocument} from "./students.model";
 
 export const createStudentService = async (
@@ -47,11 +47,13 @@ export const createStudentService = async (
 export const listStudentsByClassService = async (
     classId: string,
     userId: string,
-): Promise<ServiceResponse<StudentDocument[]>> => {
+    page: number,
+    limit: number,
+): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
 
-    if(!classExists) {
+    if (!classExists) {
         return {
             error: true,
             status: 404,
@@ -59,7 +61,7 @@ export const listStudentsByClassService = async (
         };
     }
 
-    if(classExists.userId.toString() !== userId){
+    if (classExists.userId.toString() !== userId) {
         return {
             error: true,
             status: 403,
@@ -67,15 +69,32 @@ export const listStudentsByClassService = async (
         };
     }
 
-    const students = await Student.find({
-        classId,
-    }).sort({
-        name: 1,
-    });
+    const skip = (page - 1) * limit;
+
+    const [students, total] = await Promise.all([
+        Student.find({
+            classId,
+        })
+            .sort({
+                name: 1,
+            })
+            .skip(skip)
+            .limit(limit),
+
+        Student.countDocuments({
+            classId,
+        }),
+    ]);
 
     return {
         error: false,
         data: students,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
     };
 };
 

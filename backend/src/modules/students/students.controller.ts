@@ -44,9 +44,14 @@ export const listByClass = async (req: Request, res: Response) => {
     try{
         const classId = req.params.classId as string;
 
+        const page = Number(req.query.page);
+        const limit = Number(req.query.limit);
+
         const result = await listStudentsByClassService(
             classId,
-            req.user.id
+            req.user.id,
+            page,
+            limit,
         );
 
         if (result.error) {
@@ -57,6 +62,7 @@ export const listByClass = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             data: result.data,
+            pagination: result.pagination,
         });
 
     } catch(error){

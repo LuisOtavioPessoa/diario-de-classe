@@ -56,6 +56,7 @@ export const listClassesService = async (
     ]);
 
     return {
+        error: false,
         data: classes,
         pagination: {
             page,

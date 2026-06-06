@@ -3,7 +3,7 @@ import { create, listByClass, listById , updateStudent, deleteStudentById} from 
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
-import { createStudentSchema, updateStudentSchema} from "../../schemas/students.schemas";
+import { createStudentSchema, updateStudentSchema, listStudentsByClassSchema} from "../../schemas/students.schemas";
 import { studentOwnershipMiddleware } from "../../middlewares/ownership.middleware";
 
 const router = Router();
@@ -76,6 +76,7 @@ router.post(
  *     tags: [Students]
  *     security:
  *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: path
  *         name: classId
@@ -84,8 +85,20 @@ router.post(
  *           type: string
  *         description: ID da turma
  *         example: "6860f2e9d92a4d0f85a6b111"
+ *
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *
  *     responses:
- * 
  *       200:
  *         description: Lista de estudantes da turma
  *         content:
@@ -97,6 +110,40 @@ router.post(
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/StudentResponse'
+ *
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *
+ *                     total:
+ *                       type: integer
+ *                       example: 35
+ *
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 4
+ *
+ *             example:
+ *               data:
+ *                 - _id: "6860f2e9d92a4d0f85a6b111"
+ *                   name: "João Silva"
+ *                   birthDate: "2015-03-10T00:00:00.000Z"
+ *                   gender: "male"
+ *                   disability: null
+ *                   classId: "6860f2e9d92a4d0f85a6b222"
+ *
+ *               pagination:
+ *                 page: 1
+ *                 limit: 10
+ *                 total: 35
+ *                 totalPages: 4
  *
  *       400:
  *         description: ID inválido
@@ -110,7 +157,7 @@ router.post(
  *           application/json:
  *             example:
  *               message: Acesso negado
- * 
+ *
  *       404:
  *         description: Turma não encontrada
  *         content:
@@ -124,6 +171,7 @@ router.post(
 router.get(
     "/class/:classId", 
     validateObjectId("classId"),
+    validate(listStudentsByClassSchema),
     listByClass
 );
 
