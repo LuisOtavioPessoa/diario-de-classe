@@ -1,10 +1,12 @@
-import { Schema, Types, model } from "mongoose";
+import { Schema, Types, model , HydratedDocument} from "mongoose";
 
 export interface IClass {
   name: string;
   year: number;
   userId: Types.ObjectId;
 }
+
+export type ClassDocument = HydratedDocument<IClass>;
 
 const classSchema = new Schema<IClass>(
   {

@@ -1,4 +1,4 @@
-import { Schema, Types, model} from 'mongoose';
+import { Schema, Types, model, HydratedDocument} from 'mongoose';
 
 export interface IPerformance{
     studentId: Types.ObjectId,
@@ -7,6 +7,8 @@ export interface IPerformance{
     year: number;
     description: string;
 }
+
+export type PerformanceDocument = HydratedDocument<IPerformance>;
 
 const performanceSchema = new Schema<IPerformance>(
     {

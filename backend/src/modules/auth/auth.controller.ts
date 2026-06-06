@@ -1,102 +1,78 @@
 import { Request, Response } from "express";
-import { Auth } from "./auth.model";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import {
+    registerService,
+    loginService,
+} from "./auth.services";
 
-
-export const register = async (req: Request, res: Response) => {
-    try{
-        const { name, email, password} = req.body;
-
-        const authExists = await Auth.findOne({
-            email,
-        });
-
-        if(authExists){
-            return res.status(409).json({
-                message: "Email já cadastrado",
-            });
-        }
-
-        const hashedPassword = await bcrypt.hash(
-            password,
-            10
-        );
-
-        const auth = await Auth.create({
+export const register = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const {
             name,
             email,
-            password: hashedPassword,
-        });
+            password,
+        } = req.body;
+
+        const result = await registerService(
+            name,
+            email,
+            password
+        );
+
+        if (result.error) {
+            return res.status(result.status).json({
+                message: result.message,
+            });
+        }
 
         return res.status(201).json({
             message: "Auth criado com sucesso",
-            data: {
-                id: auth._id,
-                name: auth.name,
-                email: auth.email,
-            },
+            data: result.data,
         });
 
-    }catch(error){
+    } catch (error) {
         console.error(error);
 
         return res.status(500).json({
             message: "Erro interno do servidor",
-        });       
+        });
     }
 };
 
-export const login = async (req: Request, res: Response) => {
-    try{
-        const { email, password } = req.body;
-
-        const auth = await Auth.findOne({
+export const login = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const {
             email,
-        });
-
-        if(!auth){
-            return res.status(401).json({
-                message: "Email ou senha inválidos",
-            });
-        }
-
-        const passwordMatch = await bcrypt.compare(
             password,
-            auth.password,
+        } = req.body;
+
+        const result = await loginService(
+            email,
+            password
         );
 
-        if(!passwordMatch){
-            return res.status(401).json({
-                message: "Email ou senha inválidos",
+        if (result.error) {
+            return res.status(result.status).json({
+                message: result.message,
             });
         }
-
-        const token = jwt.sign(
-            {
-                id: auth._id,
-            },
-            process.env.JWT_SECRET as string,
-            {
-                expiresIn: "7d",
-            }
-        );
 
         return res.status(200).json({
             message: "Login realizado com sucesso",
-            token,
-            user: {
-                id: auth._id,
-                name: auth.name,
-                email: auth.email,
-            },
+            token: result.data.token,
+            user: result.data.user,
         });
 
-    }catch(error){
+    } catch (error) {
         console.error(error);
 
         return res.status(500).json({
             message: "Erro interno do servidor",
-        });       
+        });
     }
 };

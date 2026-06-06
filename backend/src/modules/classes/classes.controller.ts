@@ -1,31 +1,25 @@
 import { Request, Response } from "express";
-import { Class } from "./classes.model";
+import { createClassService, listClassesService, deleteClassService} from "./classes.services";
 
 export const create = async (req: Request, res: Response) => {
     try{
         const { name, year } = req.body;
 
-        const classExists = await Class.findOne({
+        const result = await createClassService(
             name,
             year,
-            userId: req.user.id,
-        })
+            req.user.id
+        );
 
-        if (classExists) {
-        return res.status(409).json({
-            message: "Já existe uma turma com esse nome nesse ano",
-        });
+        if(result.error){
+            return res.status(result.status).json({
+                message: result.message,
+            });
         }
-
-        const classCreated = await Class.create({
-            name,
-            year,
-            userId: req.user.id,
-        });
 
         return res.status(201).json({
             message: "Turma criada com sucesso",
-            data: classCreated ,
+            data: result.data,
         });
 
     } catch(error){
@@ -40,7 +34,9 @@ export const create = async (req: Request, res: Response) => {
 export const list = async (req: Request, res: Response) => {
     try{
 
-        const classes = await Class.find({ userId: req.user.id, }).sort({year: -1, name: 1,});
+        const classes = await listClassesService(
+            req.user.id
+        );
 
         return res.status(200).json({
             data: classes,
@@ -59,11 +55,11 @@ export const deleteClassById = async (req: Request, res: Response) => {
     try{
         const id = req.params.id as string;
 
-        const classDeleted = await Class.findByIdAndDelete(id);
+        const result = await deleteClassService(id);
 
-        if (!classDeleted) {
-            return res.status(404).json({
-                message: "Turma não encontrada",
+        if (result.error) {
+            return res.status(result.status).json({
+                message: result.message,
             });
         }
 

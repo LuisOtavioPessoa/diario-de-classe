@@ -22,7 +22,10 @@ const connectDB = async (): Promise<void> => {
 
     app.listen(PORT, () => {
       console.log(
-        `Servidor rodando na porta ${PORT}`
+        `Servidor rodando na porta ${PORT}`,
+      );
+      console.log(
+        `Documentação da API: http://localhost:3000/school-docs/`,
       );
     });
 

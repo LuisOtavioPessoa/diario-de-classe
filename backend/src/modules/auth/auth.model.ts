@@ -1,10 +1,12 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, HydratedDocument } from "mongoose";
 
 export interface IAuth {
   name: string;
   email: string;
   password: string;
 }
+
+export type AuthDocument = HydratedDocument<IAuth>;
 
 const AuthSchema = new Schema<IAuth>(
   {

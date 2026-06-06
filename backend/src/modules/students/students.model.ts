@@ -1,4 +1,4 @@
-import {Schema, Types, model} from "mongoose";
+import {Schema, Types, model, HydratedDocument} from "mongoose";
 
 export interface IStudent{
     name: string;
@@ -7,6 +7,8 @@ export interface IStudent{
     disability?: string | null;
     classId: Types.ObjectId,
 }
+
+export type StudentDocument = HydratedDocument<IStudent>;
 
 const studentSchema = new Schema<IStudent>(
     {
