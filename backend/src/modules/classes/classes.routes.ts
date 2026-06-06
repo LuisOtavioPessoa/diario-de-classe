@@ -4,7 +4,7 @@ import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
 import { classOwnershipMiddleware } from "../../middlewares/ownership.middleware";
 import { validate } from "../../middlewares/validate.middleware";
-import { createClassSchema } from "../../schemas/classes.schema";
+import { createClassSchema, listClassesSchema } from "../../schemas/classes.schema";
 
 const router = Router();
 
@@ -90,6 +90,7 @@ router.post(
 router.get(
     "/", 
     authMiddleware,
+    validate(listClassesSchema),
     list,
 );
 

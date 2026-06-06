@@ -34,13 +34,16 @@ export const create = async (req: Request, res: Response) => {
 export const list = async (req: Request, res: Response) => {
     try{
 
-        const classes = await listClassesService(
-            req.user.id
+        const page = Number(req.query.page);
+        const limit = Number(req.query.limit);
+
+        const result = await listClassesService(
+            req.user.id,
+            page,
+            limit,
         );
 
-        return res.status(200).json({
-            data: classes,
-        });
+        return res.status(200).json(result);
 
     } catch(error){
         console.error(error);

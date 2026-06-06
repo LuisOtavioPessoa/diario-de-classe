@@ -1,5 +1,5 @@
 import { Class, ClassDocument } from "./classes.model";
-import { ServiceResponse } from "../../types/service.types";
+import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 
 export const createClassService = async (
     name: string,
@@ -34,17 +34,36 @@ export const createClassService = async (
 };
 
 export const listClassesService = async (
-    userId: string
-): Promise<ClassDocument[]> => {
+    userId: string,
+    page: number,
+    limit: number,
+): Promise<PaginatedResponse<ClassDocument>> => {
 
-    const classes = await Class.find({
-        userId,
-    }).sort({
-        year: -1,
-        name: 1,
-    });
+    const skip = (page - 1) * limit;
 
-    return classes;
+    const [classes, total] = await Promise.all([
+        Class.find({ userId })
+            .sort({
+                year: -1,
+                name: 1,
+            })
+            .skip(skip)
+            .limit(limit),
+
+        Class.countDocuments({
+            userId,
+        }),
+    ]);
+
+    return {
+        data: classes,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
 };
 
 export const deleteClassService = async (
