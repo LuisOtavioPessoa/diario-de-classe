@@ -46,7 +46,12 @@ export const listByClass = async (req: Request, res: Response) => {
 
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
+
         const search = req.query.search as string | undefined;
+
+        const hasDisability = req.query.hasDisability !== undefined
+            ? req.query.hasDisability === "true"
+            : undefined;
 
         const result = await listStudentsByClassService(
             classId,
@@ -54,6 +59,7 @@ export const listByClass = async (req: Request, res: Response) => {
             page,
             limit,
             search,
+            hasDisability,
         );
 
         if (result.error) {

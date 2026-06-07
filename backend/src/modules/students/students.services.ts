@@ -5,10 +5,17 @@ import { IStudent , StudentDocument} from "./students.model";
 
 type StudentFilter = {
         classId: string;
+
         name?: {
             $regex: string;
             $options: string;
         };
+
+        disability?: 
+            | null
+            | {
+                $ne: null;
+            };
     };
 
 export const createStudentService = async (
@@ -58,6 +65,7 @@ export const listStudentsByClassService = async (
     page: number,
     limit: number,
     search?: string,
+    hasDisability?: boolean,
 ): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -87,6 +95,16 @@ export const listStudentsByClassService = async (
             $regex: search.trim(),
             $options: "i",
         };
+    }
+
+    if(hasDisability === true){
+        filter.disability = {
+            $ne: null,
+        };
+    }
+
+    if(hasDisability === false){
+        filter.disability = null;
     }
 
     const skip = (page - 1) * limit;

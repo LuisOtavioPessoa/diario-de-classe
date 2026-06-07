@@ -76,5 +76,9 @@ export const listStudentsByClassSchema = z.object({
       .string()
       .trim()
       .optional(),
+
+    hasDisability: z.coerce
+      .boolean()
+      .optional(),
   }),
 });
