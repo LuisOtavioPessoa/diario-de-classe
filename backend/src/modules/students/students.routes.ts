@@ -97,6 +97,13 @@ router.post(
  *         schema:
  *           type: integer
  *           default: 10
+ * 
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Nome ou parte do nome do aluno
+ *         example: joão
  *
  *     responses:
  *       200:

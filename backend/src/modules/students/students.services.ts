@@ -3,6 +3,14 @@ import { Class } from "../classes/classes.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { IStudent , StudentDocument} from "./students.model";
 
+type StudentFilter = {
+        classId: string;
+        name?: {
+            $regex: string;
+            $options: string;
+        };
+    };
+
 export const createStudentService = async (
     name: string,
     birthDate: Date,
@@ -49,6 +57,7 @@ export const listStudentsByClassService = async (
     userId: string,
     page: number,
     limit: number,
+    search?: string,
 ): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -69,21 +78,28 @@ export const listStudentsByClassService = async (
         };
     }
 
+    const filter: StudentFilter = {
+        classId,
+    };
+
+    if(search?.trim()) {
+        filter.name = {
+            $regex: search.trim(),
+            $options: "i",
+        };
+    }
+
     const skip = (page - 1) * limit;
 
     const [students, total] = await Promise.all([
-        Student.find({
-            classId,
-        })
+        Student.find(filter)
             .sort({
                 name: 1,
             })
             .skip(skip)
             .limit(limit),
 
-        Student.countDocuments({
-            classId,
-        }),
+        Student.countDocuments(filter),
     ]);
 
     return {

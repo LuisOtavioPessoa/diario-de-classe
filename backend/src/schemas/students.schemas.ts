@@ -71,5 +71,10 @@ export const listStudentsByClassSchema = z.object({
       .min(1)
       .max(60)
       .default(10),
+
+    search: z
+      .string()
+      .trim()
+      .optional(),
   }),
 });

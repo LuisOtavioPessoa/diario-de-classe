@@ -46,12 +46,14 @@ export const listByClass = async (req: Request, res: Response) => {
 
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
+        const search = req.query.search as string | undefined;
 
         const result = await listStudentsByClassService(
             classId,
             req.user.id,
             page,
             limit,
+            search,
         );
 
         if (result.error) {
