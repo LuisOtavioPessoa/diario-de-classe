@@ -44,10 +44,16 @@ export const create = async ( req: Request, res: Response) => {
 
 export const listByStudent = async ( req: Request, res: Response) => {
     try {
-        const studentId =
-            req.params.studentId as string;
+        const studentId = req.params.studentId as string;
 
-        const result = await listPerformancesByStudentService(studentId);
+        const page = Number(req.query.page);
+        const limit = Number(req.query.limit);
+
+        const result = await listPerformancesByStudentService(
+            studentId,
+            page,
+            limit,
+        );
 
         if (result.error) {
             return res.status(result.status).json({
@@ -56,9 +62,8 @@ export const listByStudent = async ( req: Request, res: Response) => {
         }
 
         return res.status(200).json({
-            message:
-                "Desempenhos do aluno(a) listados com sucesso",
             data: result.data,
+            pagination: result.pagination,
         });
 
     } catch (error) {

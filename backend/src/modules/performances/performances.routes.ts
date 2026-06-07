@@ -3,7 +3,7 @@ import { create , listByStudent , getPerformanceByMonth, updatePerformance, dele
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validate } from "../../middlewares/validate.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
-import { createPerformanceSchema, updatePerformanceSchema,getPerformanceByMonthSchema } from "../../schemas/performances.schemas";
+import { createPerformanceSchema, updatePerformanceSchema,getPerformanceByMonthSchema, listPerformancesByStudentSchema } from "../../schemas/performances.schemas";
 import { studentOwnershipMiddleware, performanceOwnershipMiddleware } from "../../middlewares/ownership.middleware";
 
 const router = Router();
@@ -82,6 +82,18 @@ router.post(
  *           type: string
  *         description: ID do aluno
  *         example: "6860f4f2d92a4d0f85a6b124"
+ *
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 12
  *     responses:
  *       200:
  *         description: Desempenhos listados com sucesso
@@ -90,13 +102,46 @@ router.post(
  *             schema:
  *               type: object
  *               properties:
- *                 message:
- *                   type: string
- *                   example: Desempenhos do aluno(a) listados com sucesso
+ *
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/PerformanceResponse'
+ *
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *
+ *                     limit:
+ *                       type: integer
+ *                       example: 12
+ *
+ *                     total:
+ *                       type: integer
+ *                       example: 24
+ *
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 2
+ *
+ *             example:
+ *               data:
+ *                 - _id: "6860f9b5d92a4d0f85a6b145"
+ *                   studentId: "6860f4f2d92a4d0f85a6b124"
+ *                   classId: "6860f2e9d92a4d0f85a6b111"
+ *                   month: 6
+ *                   year: 2026
+ *                   description: "Excelente evolução no desenvolvimento cognitivo."
+ *
+ *               pagination:
+ *                 page: 1
+ *                 limit: 12
+ *                 total: 24
+ *                 totalPages: 2
  *
  *       400:
  *         description: ID inválido
@@ -126,6 +171,7 @@ router.get(
     authMiddleware,
     validateObjectId("studentId"),
     studentOwnershipMiddleware("studentId"),
+    validate(listPerformancesByStudentSchema),
     listByStudent
 );
 

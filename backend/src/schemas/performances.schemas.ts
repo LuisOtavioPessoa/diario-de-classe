@@ -47,3 +47,18 @@ export const getPerformanceByMonthSchema = z.object({
       .min(2000),
   }),
 });
+
+export const listPerformancesByStudentSchema = z.object({
+  query: z.object({
+    page: z.coerce
+      .number()
+      .min(1)
+      .default(1),
+
+    limit: z.coerce
+      .number()
+      .min(1)
+      .max(100)
+      .default(12),
+  }),  
+})

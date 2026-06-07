@@ -1,7 +1,7 @@
 import { Performance, PerformanceDocument } from "./performances.model";
 import { Student } from "../students/students.model";
 import { Class } from "../classes/classes.model";
-import { ServiceResponse } from "../../types/service.types";
+import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 
 export const createPerformanceService = async (
     studentId: string,
@@ -70,7 +70,9 @@ export const createPerformanceService = async (
 
 export const listPerformancesByStudentService = async (
     studentId: string,
-): Promise<ServiceResponse<PerformanceDocument[]>> => {
+    page: number,
+    limit: number,
+): Promise<PaginatedResponse<PerformanceDocument>> => {
 
     const student = await Student.findById(studentId);
 
@@ -82,16 +84,33 @@ export const listPerformancesByStudentService = async (
         };
     }
 
-    const performances = await Performance.find({
-        studentId,
-    }).sort({
-        year: -1,
-        month: -1,
-    });
+    const skip = (page - 1) * limit;
+
+    const [performances, total] = await Promise.all([
+        Performance.find({
+            studentId,
+        })
+            .sort({
+                year: -1,
+                month: -1,
+            })
+            .skip(skip)
+            .limit(limit),
+
+        Performance.countDocuments({
+            studentId,
+        }),
+    ]);
 
     return {
         error: false,
         data: performances,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
     };
 };
 

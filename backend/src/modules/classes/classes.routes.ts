@@ -67,8 +67,21 @@ router.post(
  *     tags: [Classes]
  *     security:
  *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *
  *     responses:
- * 
  *       200:
  *         description: Turmas listadas com sucesso
  *         content:
@@ -76,10 +89,31 @@ router.post(
  *             schema:
  *               type: object
  *               properties:
+ *
  *                 data:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/ClassResponse'
+ *
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *
+ *                     total:
+ *                       type: integer
+ *                       example: 25
+ *
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 3
  *
  *       401:
  *         description: Token não informado ou inválido
