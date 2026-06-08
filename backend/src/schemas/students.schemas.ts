@@ -80,5 +80,10 @@ export const listStudentsByClassSchema = z.object({
     hasDisability: z.coerce
       .boolean()
       .optional(),
+
+    disability: z
+      .string()
+      .trim()
+      .optional(),
   }),
 });

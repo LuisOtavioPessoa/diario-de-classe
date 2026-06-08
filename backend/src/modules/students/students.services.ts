@@ -4,19 +4,24 @@ import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { IStudent , StudentDocument} from "./students.model";
 
 type StudentFilter = {
-        classId: string;
+    classId: string;
 
-        name?: {
+    name?: {
+        $regex: string;
+        $options: string;
+    };
+
+    disability?:
+        | string
+        | null
+        | {
+            $ne: null;
+        }
+        | {
             $regex: string;
             $options: string;
         };
-
-        disability?: 
-            | null
-            | {
-                $ne: null;
-            };
-    };
+};
 
 export const createStudentService = async (
     name: string,
@@ -66,6 +71,7 @@ export const listStudentsByClassService = async (
     limit: number,
     search?: string,
     hasDisability?: boolean,
+    disability?: string,
 ): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -97,13 +103,16 @@ export const listStudentsByClassService = async (
         };
     }
 
-    if(hasDisability === true){
+    if (disability?.trim()) {
+        filter.disability = {
+            $regex: disability.trim(),
+            $options: "i",
+        };
+    } else if (hasDisability === true) {
         filter.disability = {
             $ne: null,
         };
-    }
-
-    if(hasDisability === false){
+    } else if (hasDisability === false) {
         filter.disability = null;
     }
 
