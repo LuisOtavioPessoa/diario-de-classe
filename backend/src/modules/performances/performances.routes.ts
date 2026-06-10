@@ -70,7 +70,7 @@ router.post(
  * @swagger
  * /api/performances/student/{studentId}:
  *   get:
- *     summary: Listar todos os desempenhos de um aluno
+ *     summary: Listar desempenhos de um aluno com filtros opcionais
  *     tags: [Performances]
  *     security:
  *       - bearerAuth: []
@@ -94,6 +94,30 @@ router.post(
  *         schema:
  *           type: integer
  *           default: 12
+ * 
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *         description: Filtrar desempenhos por ano
+ *         example: 2026
+ *
+ *       - in: query
+ *         name: month
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 12
+ *         description: Filtrar desempenhos por mês
+ *         example: 6
+ *
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Buscar palavra ou trecho presente na descrição
+ *         example: cognitivo 
+ * 
  *     responses:
  *       200:
  *         description: Desempenhos listados com sucesso

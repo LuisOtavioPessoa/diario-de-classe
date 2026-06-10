@@ -49,10 +49,23 @@ export const listByStudent = async ( req: Request, res: Response) => {
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
 
+        const year = req.query.year 
+            ? Number(req.query.year) 
+            : undefined;      
+            
+        const month = req.query.month
+            ? Number(req.query.month) 
+            : undefined; 
+
+        const search = req.query.search as string | undefined;
+
         const result = await listPerformancesByStudentService(
             studentId,
             page,
             limit,
+            year,
+            month,
+            search,
         );
 
         if (result.error) {

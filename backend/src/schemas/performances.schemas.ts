@@ -60,5 +60,21 @@ export const listPerformancesByStudentSchema = z.object({
       .min(1)
       .max(100)
       .default(12),
+
+    year: z.coerce
+      .number()
+      .min(2000)
+      .optional(),
+
+    month: z.coerce
+      .number()
+      .min(1)
+      .max(12)
+      .optional(),
+
+    search: z
+      .string()
+      .trim()
+      .optional(),
   }),  
 })
