@@ -85,5 +85,10 @@ export const listStudentsByClassSchema = z.object({
       .string()
       .trim()
       .optional(),
+
+    gender: z.enum(
+      ["male", "female"],
+    )
+    .optional()
   }),
 });

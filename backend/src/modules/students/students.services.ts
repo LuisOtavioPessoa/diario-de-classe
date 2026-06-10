@@ -21,6 +21,8 @@ type StudentFilter = {
             $regex: string;
             $options: string;
         };
+
+    gender?: "male" | "female";
 };
 
 export const createStudentService = async (
@@ -72,6 +74,7 @@ export const listStudentsByClassService = async (
     search?: string,
     hasDisability?: boolean,
     disability?: string,
+    gender?: "male" | "female",
 ): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -95,6 +98,10 @@ export const listStudentsByClassService = async (
     const filter: StudentFilter = {
         classId,
     };
+
+    if(gender){
+        filter.gender = gender;
+    }
 
     if(search?.trim()) {
         filter.name = {
