@@ -31,5 +31,9 @@ export const listClassesSchema = z.object({
       .string()
       .trim()
       .optional(),
+
+    year: z.coerce
+      .number()
+      .optional(),
   }),
 });

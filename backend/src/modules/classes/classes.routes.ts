@@ -63,7 +63,7 @@ router.post(
  * @swagger
  * /api/classes:
  *   get:
- *     summary: Listar turmas do professor autenticado
+ *     summary: Listar turmas do professor autenticado com paginação e filtros
  *     tags: [Classes]
  *     security:
  *       - bearerAuth: []
@@ -80,6 +80,20 @@ router.post(
  *         schema:
  *           type: integer
  *           default: 10
+ * 
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Nome ou parte do nome da turma
+ *         example: Infantil
+ *
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *         description: Ano da turma
+ *         example: 2026
  *
  *     responses:
  *       200:

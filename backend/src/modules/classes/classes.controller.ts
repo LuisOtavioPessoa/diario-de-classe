@@ -38,12 +38,16 @@ export const list = async (req: Request, res: Response) => {
         const limit = Number(req.query.limit);
 
         const search = req.query.search as string | undefined;
+        const year = req.query.year 
+            ? Number(req.query.year) 
+            : undefined;
 
         const result = await listClassesService(
             req.user.id,
             page,
             limit,
             search,
+            year,
         );
 
         return res.status(200).json(result);

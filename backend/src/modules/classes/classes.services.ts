@@ -8,6 +8,8 @@ type ClassesFilter = {
         $regex: string;
         $options: string;
     };
+
+    year?: number;
 };
 
 export const createClassService = async (
@@ -47,6 +49,7 @@ export const listClassesService = async (
     page: number,
     limit: number,
     search?: string,
+    year?: number,
 ): Promise<PaginatedResponse<ClassDocument>> => {
 
     const filter: ClassesFilter = { 
@@ -58,6 +61,10 @@ export const listClassesService = async (
             $regex: search.trim(),
             $options: "i",
         };
+    }
+
+    if(year) {
+        filter.year = year;
     }
 
     const skip = (page - 1) * limit;
