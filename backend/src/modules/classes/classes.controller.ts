@@ -37,10 +37,13 @@ export const list = async (req: Request, res: Response) => {
         const page = Number(req.query.page);
         const limit = Number(req.query.limit);
 
+        const search = req.query.search as string | undefined;
+
         const result = await listClassesService(
             req.user.id,
             page,
             limit,
+            search,
         );
 
         return res.status(200).json(result);

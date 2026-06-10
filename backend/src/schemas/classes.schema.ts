@@ -26,5 +26,10 @@ export const listClassesSchema = z.object({
       .min(1)
       .max(100)
       .default(10),
+
+    search: z
+      .string()
+      .trim()
+      .optional(),
   }),
 });

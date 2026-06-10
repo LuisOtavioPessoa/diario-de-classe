@@ -1,6 +1,15 @@
 import { Class, ClassDocument } from "./classes.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 
+type ClassesFilter = {
+    userId: string;
+
+    name?: {
+        $regex: string;
+        $options: string;
+    };
+};
+
 export const createClassService = async (
     name: string,
     year: number,
@@ -37,12 +46,24 @@ export const listClassesService = async (
     userId: string,
     page: number,
     limit: number,
+    search?: string,
 ): Promise<PaginatedResponse<ClassDocument>> => {
+
+    const filter: ClassesFilter = { 
+        userId,
+    };
+
+    if(search?.trim()) {
+        filter.name = {
+            $regex: search.trim(),
+            $options: "i",
+        };
+    }
 
     const skip = (page - 1) * limit;
 
     const [classes, total] = await Promise.all([
-        Class.find({ userId })
+        Class.find(filter)
             .sort({
                 year: -1,
                 name: 1,
@@ -50,9 +71,7 @@ export const listClassesService = async (
             .skip(skip)
             .limit(limit),
 
-        Class.countDocuments({
-            userId,
-        }),
+        Class.countDocuments(filter),
     ]);
 
     return {
