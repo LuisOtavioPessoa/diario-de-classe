@@ -4,6 +4,7 @@ export interface IAuth {
   name: string;
   email: string;
   password: string;
+  refreshToken?: string | null;
 }
 
 export type AuthDocument = HydratedDocument<IAuth>;
@@ -28,6 +29,11 @@ const AuthSchema = new Schema<IAuth>(
       type: String,
       required: true,
       minlength: 8,
+    },
+
+    refreshToken: {
+      type: String,
+      default: null,
     },
   },
   {

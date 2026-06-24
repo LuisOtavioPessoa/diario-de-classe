@@ -1,6 +1,6 @@
 import { Router } from "express";
-import {register,login,} from "./auth.controller";
-import { registerSchema, loginSchema } from "../../schemas/auth.schemas";
+import {register,login, refresh, logout,} from "./auth.controller";
+import { registerSchema, loginSchema, refreshTokenSchema } from "../../schemas/auth.schemas";
 import { validate } from "../../middlewares/validate.middleware";
 
 const router = Router();
@@ -93,6 +93,64 @@ router.post(
     "/login", 
     validate(loginSchema), 
     login
+);
+
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Gerar novo access token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             refreshToken: "eyJ..."
+ *
+ *     responses:
+ *       200:
+ *         description: Novo access token gerado
+ *         content:
+ *           application/json:
+ *             example:
+ *               accessToken: "eyJ..."
+ *
+ *       401:
+ *         description: Refresh token inválido
+ */
+router.post(
+    "/refresh",
+    validate(refreshTokenSchema),
+    refresh
+);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Encerrar sessão do usuário
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             refreshToken: "eyJ..."
+ *
+ *     responses:
+ *       200:
+ *         description: Logout realizado com sucesso
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Logout realizado com sucesso
+ */
+router.post(
+    "/logout",
+    validate(refreshTokenSchema),
+    logout
 );
 
 export default router;

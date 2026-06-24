@@ -73,20 +73,36 @@ export const loginService = async (
         };
     }
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
         {
             id: auth._id,
         },
-        process.env.JWT_SECRET as string,
+        process.env.JWT_ACCESS_SECRET as string,
+        {
+            expiresIn: "15m",
+        }
+    );
+
+    const refreshToken = jwt.sign(
+        {
+            id: auth._id,
+        },
+        process.env.JWT_REFRESH_SECRET as string,
         {
             expiresIn: "7d",
         }
     );
 
+    auth.refreshToken = refreshToken;
+
+    await auth.save();
+
     return {
         error: false,
         data: {
-            token,
+            accessToken,
+            refreshToken,
+            
             user: {
                 id: auth._id.toString(),
                 name: auth.name,
@@ -94,4 +110,79 @@ export const loginService = async (
             },
         },
     };
+};
+
+export const refreshTokenService = async (
+    refreshToken: string
+): Promise<ServiceResponse<{ accessToken: string}>> => {
+
+    try{
+        const decoded = jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET as string
+        ) as { id: string};
+
+        const auth = await Auth.findById(decoded.id);
+
+        if(!auth){
+            return{
+                error: true,
+                status: 401,
+                message: "Refresh token inválido",
+            };
+        }
+
+        if(auth.refreshToken !== refreshToken){
+            return {
+                error: true,
+                status: 401,
+                message: "Refresh token inválido",
+            };
+        }
+
+        const accessToken = jwt.sign(
+            {
+                id: auth._id,
+            },
+            process.env.JWT_ACCESS_SECRET as string,
+            {
+                expiresIn: "15m",
+            }
+        );
+
+        return{
+            error: false,
+            data: {
+                accessToken,
+            },
+        };
+    } catch {
+
+        return {
+            error: true,
+            status: 401,
+            message: "Refresh token inválido",
+        };
+    }
+};
+
+export const logoutService = async (
+    refreshToken: string
+): Promise<ServiceResponse> => {
+
+  const auth = await Auth.findOne({
+    refreshToken,
+  });
+
+  if (auth) {
+
+    auth.refreshToken = null;
+
+    await auth.save();
+  }
+
+  return {
+    error: false,
+    data: undefined,
+  };
 };

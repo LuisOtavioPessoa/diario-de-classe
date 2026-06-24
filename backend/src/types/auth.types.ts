@@ -9,7 +9,9 @@ export interface RegisterResponse {
 }
 
 export interface LoginResponse {
-    token: string;
+    accessToken: string;
+    refreshToken: string;
+    
     user: {
         id: string;
         name: string;
