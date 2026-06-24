@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ServiceResponse } from "../../types/service.types";
 import { LoginResponse, RegisterResponse } from "../../types/auth.types";
+import { authConfig } from "../../config/auth";
 
 export const registerService = async (
     name: string,
@@ -77,20 +78,20 @@ export const loginService = async (
         {
             id: auth._id,
         },
-        process.env.JWT_ACCESS_SECRET as string,
-        {
-            expiresIn: "15m",
-        }
+        authConfig.accessSecret,
+        { 
+            expiresIn: authConfig.accessExpiresIn,
+        }   
     );
 
     const refreshToken = jwt.sign(
         {
             id: auth._id,
         },
-        process.env.JWT_REFRESH_SECRET as string,
-        {
-            expiresIn: "7d",
-        }
+        authConfig.refreshSecret,
+        { 
+            expiresIn: authConfig.refreshExpiresIn 
+        } 
     );
 
     auth.refreshToken = refreshToken;
@@ -119,8 +120,11 @@ export const refreshTokenService = async (
     try{
         const decoded = jwt.verify(
             refreshToken,
-            process.env.JWT_REFRESH_SECRET as string
-        ) as { id: string};
+            authConfig.refreshSecret
+        ) as 
+        { 
+            id: string
+        };
 
         const auth = await Auth.findById(decoded.id);
 
@@ -144,9 +148,9 @@ export const refreshTokenService = async (
             {
                 id: auth._id,
             },
-            process.env.JWT_ACCESS_SECRET as string,
-            {
-                expiresIn: "15m",
+            authConfig.accessSecret,
+            { 
+                expiresIn: authConfig.accessExpiresIn 
             }
         );
 
