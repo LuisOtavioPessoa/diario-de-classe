@@ -57,6 +57,10 @@ export const listByClass = async (req: Request, res: Response) => {
 
         const gender = req.query.gender as "male" | "female" | undefined;
 
+        const sort = req.query.sort as | "name" | "birthDate" | "gender" | "createdAt" | undefined;
+
+        const order = req.query.order as | "asc" | "desc" | undefined;
+
         const result = await listStudentsByClassService(
             classId,
             req.user.id,
@@ -66,6 +70,8 @@ export const listByClass = async (req: Request, res: Response) => {
             hasDisability,
             disability,
             gender,
+            sort,
+            order,
         );
 
         if (result.error) {

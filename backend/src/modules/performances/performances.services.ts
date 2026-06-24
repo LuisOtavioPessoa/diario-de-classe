@@ -2,6 +2,7 @@ import { Performance, PerformanceDocument } from "./performances.model";
 import { Student } from "../students/students.model";
 import { Class } from "../classes/classes.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
+import { SortOrder } from "mongoose";
 
 type PerformancesFilter = {
     studentId: string;
@@ -85,6 +86,8 @@ export const listPerformancesByStudentService = async (
     year?: number,
     month?: number,
     search?: string,
+    sort?: "year" | "month" | "createdAt",
+    order?: "asc" | "desc",
 ): Promise<PaginatedResponse<PerformanceDocument>> => {
 
     const filter: PerformancesFilter = { 
@@ -118,12 +121,19 @@ export const listPerformancesByStudentService = async (
 
     const skip = (page - 1) * limit;
 
+    const sortOptions: Record<string, SortOrder> = 
+    sort 
+        ? {
+            [sort]: order === "desc" ? -1 : 1,
+        }
+        : {
+           year: -1,
+           month: -1, 
+        };
+
     const [performances, total] = await Promise.all([
         Performance.find(filter)
-            .sort({
-                year: -1,
-                month: -1,
-            })
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit),
 

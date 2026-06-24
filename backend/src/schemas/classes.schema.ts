@@ -35,5 +35,14 @@ export const listClassesSchema = z.object({
     year: z.coerce
       .number()
       .optional(),
+
+    sort: z.enum(
+      ["name", "year", "createdAt"]
+    ).optional(),
+
+    order: z.enum(
+      ["asc", "desc"]
+    ).optional(),
+
   }),
 });

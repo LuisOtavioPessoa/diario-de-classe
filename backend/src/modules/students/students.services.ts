@@ -2,6 +2,7 @@ import { Student } from "./students.model";
 import { Class } from "../classes/classes.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { IStudent , StudentDocument} from "./students.model";
+import { SortOrder } from "mongoose";
 
 type StudentFilter = {
     classId: string;
@@ -75,6 +76,8 @@ export const listStudentsByClassService = async (
     hasDisability?: boolean,
     disability?: string,
     gender?: "male" | "female",
+    sort?: "name" | "birthDate" | "gender" | "createdAt",
+    order?: "asc" | "desc",
 ): Promise<PaginatedResponse<StudentDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -125,11 +128,17 @@ export const listStudentsByClassService = async (
 
     const skip = (page - 1) * limit;
 
+    const sortField = sort || "name";
+
+    const sortOrder = order === "desc" ? -1 : 1;
+
+    const sortOptions: Record<string, SortOrder> = {
+        [sortField]: sortOrder,
+    };
+
     const [students, total] = await Promise.all([
         Student.find(filter)
-            .sort({
-                name: 1,
-            })
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit),
 

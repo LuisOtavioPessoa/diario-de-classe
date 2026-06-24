@@ -73,7 +73,7 @@ router.post(
  * /api/students/class/{classId}:
  *   get:
  *     summary: Listar estudantes de uma turma
- *     description: Permite paginação e filtros por nome, gênero e deficiência.
+ *     description: Permite paginação, filtros por nome, gênero e deficiência, além de ordenação dinâmica dos resultados.
  *     tags: [Students]
  *     security:
  *       - bearerAuth: []
@@ -131,6 +131,22 @@ router.post(
  *         description: Nome ou parte do nome da deficiência
  *         example: tdah
  *
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [name, birthDate, gender, createdAt]
+ *         description: Campo utilizado para ordenação dos resultados
+ *         example: name
+ *
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Direção da ordenação
+ *         example: asc
+ * 
  *     responses:
  *       200:
  *         description: Lista de estudantes da turma

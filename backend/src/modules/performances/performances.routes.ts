@@ -70,7 +70,10 @@ router.post(
  * @swagger
  * /api/performances/student/{studentId}:
  *   get:
- *     summary: Listar desempenhos de um aluno com filtros opcionais
+ *     summary: Listar desempenhos de um aluno com filtros, paginação e ordenação
+ *     description: |
+ *       Permite paginação, filtros por ano, mês e descrição,
+ *       além de ordenação dinâmica por ano, mês ou data de criação.
  *     tags: [Performances]
  *     security:
  *       - bearerAuth: []
@@ -117,6 +120,22 @@ router.post(
  *           type: string
  *         description: Buscar palavra ou trecho presente na descrição
  *         example: cognitivo 
+ * 
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [year, month, createdAt]
+ *         description: Campo utilizado para ordenação
+ *         example: year
+ *
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Direção da ordenação
+ *         example: desc
  * 
  *     responses:
  *       200:

@@ -88,7 +88,15 @@ export const listStudentsByClassSchema = z.object({
 
     gender: z.enum(
       ["male", "female"],
-    )
-    .optional()
+    ).optional(),
+
+    sort: z.enum(
+      ["name", "birthDate", "gender", "createdAt"]
+    ).optional(),
+
+    order: z.enum(
+      ["asc", "desc"]
+    ).optional(),
+
   }),
 });

@@ -1,5 +1,6 @@
 import { Class, ClassDocument } from "./classes.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
+import { SortOrder } from "mongoose";
 
 type ClassesFilter = {
     userId: string;
@@ -50,6 +51,8 @@ export const listClassesService = async (
     limit: number,
     search?: string,
     year?: number,
+    sort?: "name" | "year" | "createdAt",
+    order?: "asc" | "desc",
 ): Promise<PaginatedResponse<ClassDocument>> => {
 
     const filter: ClassesFilter = { 
@@ -69,12 +72,19 @@ export const listClassesService = async (
 
     const skip = (page - 1) * limit;
 
+    const sortOptions: Record<string, SortOrder> =
+    sort
+        ? {
+            [sort]: order === "desc" ? -1 : 1,
+        }
+        : {
+            year: -1,
+            name: 1,
+        };
+
     const [classes, total] = await Promise.all([
         Class.find(filter)
-            .sort({
-                year: -1,
-                name: 1,
-            })
+            .sort(sortOptions)
             .skip(skip)
             .limit(limit),
 

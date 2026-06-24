@@ -42,12 +42,18 @@ export const list = async (req: Request, res: Response) => {
             ? Number(req.query.year) 
             : undefined;
 
+        const sort = req.query.sort as | "name" | "year" | "createdAt" | undefined;
+
+        const order = req.query.order as | "asc" | "desc" | undefined;
+
         const result = await listClassesService(
             req.user.id,
             page,
             limit,
             search,
             year,
+            sort,
+            order,
         );
 
         return res.status(200).json(result);

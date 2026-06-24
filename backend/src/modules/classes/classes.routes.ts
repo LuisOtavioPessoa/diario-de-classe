@@ -63,7 +63,10 @@ router.post(
  * @swagger
  * /api/classes:
  *   get:
- *     summary: Listar turmas do professor autenticado com paginação e filtros
+ *     summary: Listar turmas do professor autenticado com paginação, filtros e ordenação
+ *     description: |
+ *       Permite paginação, filtros por ano, mês e descrição,
+ *       além de ordenação dinâmica por ano, mês ou data de criação.
  *     tags: [Classes]
  *     security:
  *       - bearerAuth: []
@@ -95,6 +98,22 @@ router.post(
  *         description: Ano da turma
  *         example: 2026
  *
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [name, year, createdAt]
+ *         description: Campo utilizado para ordenação
+ *         example: name
+ *
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Direção da ordenação
+ *         example: desc 
+ * 
  *     responses:
  *       200:
  *         description: Turmas listadas com sucesso

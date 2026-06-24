@@ -59,6 +59,10 @@ export const listByStudent = async ( req: Request, res: Response) => {
 
         const search = req.query.search as string | undefined;
 
+        const sort = req.query.sort as | "year" | "month" | "createdAt" | undefined;
+
+        const order = req.query.order as | "asc" | "desc" | undefined;
+
         const result = await listPerformancesByStudentService(
             studentId,
             page,
@@ -66,6 +70,8 @@ export const listByStudent = async ( req: Request, res: Response) => {
             year,
             month,
             search,
+            sort,
+            order,
         );
 
         if (result.error) {

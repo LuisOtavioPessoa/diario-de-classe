@@ -76,5 +76,14 @@ export const listPerformancesByStudentSchema = z.object({
       .string()
       .trim()
       .optional(),
+
+    sort: z.enum(
+      ["year", "month", "createdAt"]
+    ).optional(),
+
+    order: z.enum(
+      ["asc", "desc"]
+    ).optional(),
+    
   }),  
 })
