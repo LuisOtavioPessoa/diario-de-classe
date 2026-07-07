@@ -4,10 +4,8 @@ import {
   listClassesService,
   deleteClassService,
 } from "../../../modules/classes/classes.services";
-import { ClassDocument } from "../../../modules/classes/classes.model";
 import { Class } from "../../../modules/classes/classes.model";
 import { setupClassListMocks } from "../../helpers/setupClassListMocks";
-
 
 afterEach(() => {
   vi.restoreAllMocks();
