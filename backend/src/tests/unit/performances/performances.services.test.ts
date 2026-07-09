@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { Class } from "../../../modules/classes/classes.model";
 import { Performance } from "../../../modules/performances/performances.model";
 import { Student } from "../../../modules/students/students.model";
-import { createPerformanceService, deletePerformanceService, updatePerformanceService } from "../../../modules/performances/performances.services";
+import { createPerformanceService, deletePerformanceService, getPerformanceByMonthService, updatePerformanceService } from "../../../modules/performances/performances.services";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -316,6 +316,129 @@ describe("createPerformanceService", () => {
                 expect(result.message).toBe("Já existe um desempenho para esse aluno nesse mês e ano");
             }
         }); 
+    });
+});
+
+
+describe("getPerformanceByMonthService", () => {
+
+    describe("Sucesso", () => {
+
+        it("deve retornar um desempenho pelo mês e ano", async () => {
+
+            const fakePerformance = {
+                _id: "1",
+                studentId: "100",
+                classId: "class123",
+                month: 2,
+                year: 2026,
+                description: "Ótimo foco nas aulas",
+            };
+             
+            const studentSpy = vi.spyOn(Student, "findById")
+                .mockResolvedValue({} as any);
+
+            const performanceSpy = vi.spyOn(Performance, "findOne")
+                .mockResolvedValue(fakePerformance as any);
+
+            const result = await getPerformanceByMonthService(
+                "100",
+                2,
+                2026,
+            );
+
+            expect(studentSpy).toHaveBeenCalledWith("100")
+
+            expect(performanceSpy).toHaveBeenCalledWith({
+                studentId: "100",
+                month: 2,
+                year: 2026,
+            });
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+                expect(result.data).toEqual(fakePerformance);
+            }
+        });
+    });
+
+    describe("Erros", () => {
+
+        it("deve retornar erro quando o aluno não existir", async () => {
+
+            const studentSpy = vi.spyOn(Student, "findById")
+                .mockResolvedValue(null);
+
+            const result = await getPerformanceByMonthService(
+                "100",
+                2,
+                2026,
+            );
+
+            expect(studentSpy).toHaveBeenCalledWith("100");
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe("Aluno(a) não encontrado(a)");
+            }
+
+        });
+
+        it("não deve buscar desempenho quando o aluno não existir", async () => {
+
+            vi.spyOn(Student, "findById")
+                .mockResolvedValue(null);
+
+            const Performancepy = vi.spyOn(Performance, "findOne");
+
+            const result = await getPerformanceByMonthService(
+                "100",
+                2,
+                2026,
+            );
+
+            expect(Performancepy).not.toHaveBeenCalled()
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe(
+                    "Aluno(a) não encontrado(a)",
+                );
+            }              
+        });
+
+        it("deve retornar erro quando o desempenho não existir", async () => {
+
+            vi.spyOn(Student, "findById")
+                .mockResolvedValue({} as any);
+
+            const performanceSpy = vi.spyOn(Performance, "findOne")
+                .mockResolvedValue(null);
+
+            const result = await getPerformanceByMonthService(
+                "100",
+                2,
+                2026,
+            );
+
+            expect(performanceSpy).toHaveBeenCalledWith({
+                studentId: "100",
+                month: 2,
+                year: 2026,
+            });
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe("Desempenho não encontrado");
+            }
+        });
     });
 });
 
