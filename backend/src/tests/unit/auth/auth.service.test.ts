@@ -3,7 +3,7 @@ import { Auth } from "../../../modules/auth/auth.model";
 import { setupAuthExists, setupAuthByIdExists } from "../../helpers/setupAuthExists";
 import { setupBcryptCompare, setupBcryptHash, setupJwtSign, setupJwtVerify } from "../../helpers/setupAuthMocks";
 import { fakeAuth, fakeAuthWithRefreshToken } from "../../mocks/auth";
-import { loginService, registerService } from "../../../modules/auth/auth.services";
+import { loginService, registerService, refreshTokenService} from "../../../modules/auth/auth.services";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authConfig } from "../../../config/auth";
@@ -371,9 +371,139 @@ describe("loginService", () => {
 
 describe("refreshTokenService", () => {
 
-    describe("Sucesso", () => {})
+    describe("Sucesso", () => {
 
-    describe("Erros", () => {})
+        it("deve gerar novo accessToken com sucesso", async()=> {
+
+            const fakeUser = fakeAuthWithRefreshToken();
+
+            setupJwtVerify({
+                id: "user123",
+            });
+
+            setupAuthByIdExists(fakeUser);
+
+            setupJwtSign();
+
+            const result = await refreshTokenService(
+                "refresh-token",
+            ); 
+            
+            expect(jwt.verify).toHaveBeenCalledWith(
+                "refresh-token",
+                authConfig.refreshSecret,
+            );
+
+            expect(Auth.findById).toHaveBeenCalledWith(
+                "user123",
+            );
+
+            expect(jwt.sign).toHaveBeenNthCalledWith(
+                1,
+                {
+                    id: "user123",
+                },
+                authConfig.accessSecret,
+                {
+                    expiresIn: authConfig.accessExpiresIn,
+                },
+            );
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+                expect(result.data).toEqual({
+                    accessToken: "fake-access-token",
+                });
+            }
+        })
+    })
+
+    describe("Erros", () => {
+
+        it("deve retornar erro quando o jwt.verify lançar exceção", async() => {
+
+            vi.spyOn(jwt, "verify")
+                .mockImplementation(() => {
+                    throw new Error("invalid");
+                });
+
+            const result = await refreshTokenService(
+                "refresh-token",
+            );
+
+            expect(result.error).toBe(true);
+
+            if(result.error){
+                expect(result.status).toBe(401);
+                expect(result.message).toBe(
+                    "Refresh token inválido",
+                );
+            }
+        });
+
+        it("deve retornar erro quando o usuário não existir", async() => {
+
+            setupJwtVerify({
+                id: "user123",
+            });
+
+            setupAuthByIdExists(null);
+
+            const result = await refreshTokenService(
+                "refresh-token",
+            );
+
+            expect(jwt.verify).toHaveBeenCalledWith(
+                "refresh-token",
+                authConfig.refreshSecret,
+            );
+
+            expect(Auth.findById).toHaveBeenCalledWith(
+                "user123",
+            );
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(401);
+                expect(result.message).toBe(
+                    "Refresh token inválido",
+                );
+            } 
+        });
+
+        it("deve retornar erro quando o refreshToken salvo for diferente do recebido", async() => {
+
+            setupJwtVerify({
+                id: "user123",
+            });
+
+            const fakeUser = {
+                ...fakeAuthWithRefreshToken(),
+                refreshToken: "outro-token",
+            };
+
+            setupAuthByIdExists(fakeUser);
+
+            const signSpy = vi.spyOn(jwt, "sign");
+
+            const result = await refreshTokenService(
+                "refresh-token",
+            );
+
+            expect(signSpy).not.toHaveBeenCalled();
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(401);
+                expect(result.message).toBe(
+                    "Refresh token inválido",
+                );
+            }
+        });
+    })
 
 });
 
