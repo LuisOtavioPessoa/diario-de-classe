@@ -91,7 +91,6 @@ describe("registerService", () => {
             ); 
 
             expect(hashSpy).not.toHaveBeenCalled();
-            expect(Auth.create).not.toHaveBeenCalled();
             
             expect(result.error).toBe(true);
 

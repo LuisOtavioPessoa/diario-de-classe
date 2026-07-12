@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import { Class } from "../../modules/classes/classes.model";
 import { Student } from "../../modules/students/students.model";
-import { fakeOwnedClass } from "./mocks";
+import { fakeOwnedClass } from "../mocks/class";
 
 export const setupStudentListMocks = (students: any[]) => {
 
