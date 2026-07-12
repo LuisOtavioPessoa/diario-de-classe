@@ -3,7 +3,7 @@ import { createStudentService, deleteStudentService, getStudentByIdService, upda
 import { Student } from "../../../modules/students/students.model";
 import { Class } from "../../../modules/classes/classes.model";
 import { setupStudentListMocks } from "../../helpers/setupStudentListMocks";
-import { fakeForeignClass } from "../../helpers";
+import { fakeForeignClass } from "../../mocks/class";
 
 afterEach(() => {
   vi.restoreAllMocks();
