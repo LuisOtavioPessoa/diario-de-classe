@@ -2,7 +2,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { Class } from "../../../modules/classes/classes.model";
 import { Performance } from "../../../modules/performances/performances.model";
 import { Student } from "../../../modules/students/students.model";
-import { createPerformanceService, deletePerformanceService, getPerformanceByMonthService, updatePerformanceService } from "../../../modules/performances/performances.services";
+import { createPerformanceService, deletePerformanceService, getPerformanceByMonthService, listPerformancesByStudentService, updatePerformanceService } from "../../../modules/performances/performances.services";
+import { setupPerformanceListMocks, setupStudentExists} from "../../helpers/setupPerformanceListMocks";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -319,6 +320,526 @@ describe("createPerformanceService", () => {
     });
 });
 
+describe("listPerformancesByStudentService", () => {
+
+    describe("Sucesso", () => {
+        it("deve listar os desempenhos do aluno com sucesso", async() => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno com dificuldade de cálculos básicos."
+                },
+                {
+                    _id: "1",
+                    month: 3,
+                    year: 2026,
+                    description: "Aluno apresenta melhora com cálculos básicos"
+                }
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            const result = await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+            )
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+
+                expect(result.data).toEqual(fakePerformances);
+
+                expect(result.pagination).toEqual({
+                    page: 1,
+                    limit: 10,
+                    total: 2,
+                    totalPages: 1,
+                });
+            }
+
+                expect(mocks.findMock).toHaveBeenCalledWith({
+                    studentId: "123",
+                });
+
+                expect(mocks.sortMock).toHaveBeenCalledWith({
+                    year: -1,
+                    month: -1,
+                });
+
+                expect(mocks.skipMock).toHaveBeenCalledWith(0);
+
+                expect(mocks.limitMock).toHaveBeenCalledWith(10);
+
+                expect(mocks.countMock).toHaveBeenCalledWith({
+                    studentId: "123",
+                });           
+            })
+        });
+
+    describe("Erros", () => {
+        it("deve retornar erro quando o aluno não existir", async () => {
+
+            const studentSpy = vi.spyOn(Student, "findById")
+                .mockResolvedValue(null);
+
+            const result = await listPerformancesByStudentService(
+                "100",
+                 1,
+                 10,
+            );
+
+            expect(studentSpy).toHaveBeenCalledWith("100");
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe("Aluno(a) não encontrado(a)");
+            }
+        });
+    
+        it("não deve buscar desempenho quando o aluno não existir", async () => {
+
+            vi.spyOn(Student, "findById")
+                .mockResolvedValue(null);
+
+            const Performancepy = vi.spyOn(Performance, "findOne");
+
+            const result = await listPerformancesByStudentService(
+                "100",
+                 1,
+                 10,
+            );
+
+            expect(Performancepy).not.toHaveBeenCalled()
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe(
+                    "Aluno(a) não encontrado(a)",
+                );
+            }              
+        });
+    });
+
+    describe("Filtros", () => {
+
+        it("deve filtrar desempenhos por descrição", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                "faltando",
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                description: {
+                    $regex: "faltando",
+                    $options: "i",
+                },
+            });
+        });
+
+        it("deve filtrar desempenhos por ano", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                2026,
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                year: 2026,
+            });
+        });
+        
+        it("deve filtrar desempenhos por mês", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                2
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                month: 2,
+            });
+        });
+
+        it("deve combinar filtros de descrição e ano", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                2026,
+                undefined,
+                "faltando",
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                description: {
+                    $regex: "faltando",
+                    $options: "i",
+                },
+                year: 2026
+            });
+        });
+
+        it("deve combinar filtros de ano e mês", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                2026,
+                2,
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                year: 2026,
+                month: 2,
+            });
+        });
+
+        it("deve combinar descrição, ano e mês", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                2026,
+                2,
+                "faltando"
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                description: {
+                    $regex: "faltando",
+                    $options: "i",              
+                },
+                year: 2026,
+                month: 2,
+            });
+        });
+
+        it("deve remover espaços da busca antes de filtrar", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais."
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                "   faltando   ",
+            );
+
+            expect(mocks.findMock).toHaveBeenCalledWith({
+                studentId: "123",
+                description: {
+                    $regex: "faltando",
+                    $options: "i",
+                },
+            });
+
+        });
+    });
+
+    describe("Ordenação", () => {
+
+        it("deve ordenar por ano crescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "year",
+                "asc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                year: 1,
+            });
+        });
+
+        it("deve ordenar por ano decrescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "year",
+                "desc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                year: -1,
+            });
+        });
+
+        it("deve ordenar por mês crescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "month",
+                "asc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                month: 1,
+            });
+        });
+
+        it("deve ordenar por mês decrescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "month",
+                "desc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                month: -1,
+            });
+        });
+
+        it("deve ordenar por data de criação crescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "createdAt",
+                "asc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                createdAt: 1,
+            });
+        });
+
+        it("deve ordenar por data de criação decrescente", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+                undefined,
+                undefined,
+                undefined,
+                "createdAt",
+                "desc"
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                createdAt: -1,
+            });
+        });
+
+        it("deve utilizar ordenação padrão quando nenhum sort for informado", async () => {
+
+            setupStudentExists();
+
+            const mocks = setupPerformanceListMocks([]);
+
+            await listPerformancesByStudentService(
+                "123",
+                1,
+                10,
+            );
+
+            expect(mocks.sortMock).toHaveBeenCalledWith({
+                year: -1,
+                month: -1,
+            });
+
+        });
+    });
+
+    describe("Paginação", () => {
+
+        it("deve aplicar paginação corretamente", async () => {
+
+            setupStudentExists();
+
+            const fakePerformances = [
+                {
+                    _id: "1",
+                    month: 2,
+                    year: 2026,
+                    description: "Aluno faltando demais.",
+                },
+            ];
+
+            const mocks = setupPerformanceListMocks(fakePerformances);
+
+            await listPerformancesByStudentService(
+                "123",
+                2,
+                5,
+            );
+
+            expect(mocks.skipMock).toHaveBeenCalledWith(5);
+            expect(mocks.limitMock).toHaveBeenCalledWith(5);
+        });
+    });
+
+});
 
 describe("getPerformanceByMonthService", () => {
 
