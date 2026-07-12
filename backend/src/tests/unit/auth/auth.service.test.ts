@@ -3,7 +3,7 @@ import { Auth } from "../../../modules/auth/auth.model";
 import { setupAuthExists, setupAuthByIdExists } from "../../helpers/setupAuthExists";
 import { setupBcryptCompare, setupBcryptHash, setupJwtSign, setupJwtVerify } from "../../helpers/setupAuthMocks";
 import { fakeAuth, fakeAuthWithRefreshToken } from "../../mocks/auth";
-import { loginService, registerService, refreshTokenService} from "../../../modules/auth/auth.services";
+import { loginService, registerService, refreshTokenService, logoutService} from "../../../modules/auth/auth.services";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authConfig } from "../../../config/auth";
@@ -509,6 +509,51 @@ describe("refreshTokenService", () => {
 
 describe("logoutService", () => {
 
-    describe("Sucesso", () => {})
+    describe("Sucesso", () => {
+
+        it("deve remover o refreshToken do usuário", async() => {
+
+            const fakeUser = fakeAuthWithRefreshToken();
+
+            setupAuthExists(fakeUser);
+
+            const result = await logoutService(
+                "refresh-token",
+            );
+
+            expect(Auth.findOne).toHaveBeenCalledWith({
+                refreshToken: "refresh-token",
+            });
+
+            expect(fakeUser.refreshToken).toBeNull();
+
+            expect(fakeUser.save).toHaveBeenCalled();
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+                expect(result.data).toBeUndefined();
+            }
+        });
+
+        it("deve retornar sucesso quando o refreshToken não existir", async () => {
+
+            setupAuthExists(null);
+
+            const result = await logoutService(
+                "refresh-token",
+            );
+
+            expect(Auth.findOne).toHaveBeenCalledWith({
+                refreshToken: "refresh-token",
+            });
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+                expect(result.data).toBeUndefined();
+            }
+        });      
+    })
 
 });
