@@ -56,7 +56,16 @@ export const list = async (req: Request, res: Response) => {
             order,
         );
 
-        return res.status(200).json(result);
+        if (result.error) {
+            return res.status(result.status).json({
+                message: result.message,
+            });
+        }
+
+        return res.status(200).json({
+            data: result.data,
+            pagination: result.pagination,
+        });
 
     } catch(error){
         console.error(error);
