@@ -4,7 +4,7 @@ import { setupAuthExists, setupAuthByIdExists } from "../../helpers/setupAuthExi
 import { setupBcryptCompare, setupBcryptHash, setupJwtSign, setupJwtVerify } from "../../helpers/setupAuthMocks";
 import { fakeAuth, fakeAuthWithRefreshToken } from "../../mocks/auth";
 import { loginService, registerService, refreshTokenService, logoutService} from "../../../modules/auth/auth.services";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { authConfig } from "../../../config/auth";
 

@@ -68,13 +68,7 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Login realizado com sucesso
- *                 data:
- *                   $ref: '#/components/schemas/LoginResponse'
+ *               $ref: '#/components/schemas/LoginResponse'
  *
  *       401:
  *         description: Email ou senha inválidos

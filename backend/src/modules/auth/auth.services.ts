@@ -1,5 +1,5 @@
 import { Auth } from "./auth.model";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { ServiceResponse } from "../../types/service.types";
 import { LoginResponse, RegisterResponse } from "../../types/auth.types";

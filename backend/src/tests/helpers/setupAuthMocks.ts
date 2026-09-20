@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const setupJwtSign = (

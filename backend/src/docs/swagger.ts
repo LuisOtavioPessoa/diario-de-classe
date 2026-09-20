@@ -185,9 +185,17 @@ const options: swaggerJsdoc.Options = {
                 LoginResponse: {
                     type: "object",
                     properties: {
-                        token: {
+                        message: {
                             type: "string",
-                            example: "jwt.token.aqui"
+                            example: "Login realizado com sucesso"
+                        },
+                        accessToken: {
+                            type: "string",
+                            example: "jwt.access.token.aqui"
+                        },
+                        refreshToken: {
+                            type: "string",
+                            example: "jwt.refresh.token.aqui"
                         },
                         user: {
                             type: "object",
@@ -262,6 +270,18 @@ const options: swaggerJsdoc.Options = {
                         year: {
                             type: "integer",
                             example: 2026
+                        },
+                        userId: {
+                            type: "string",
+                            example: "687e8e8c2b8f6d8c7f8a1234"
+                        },
+                        createdAt: {
+                            type: "string",
+                            format: "date-time",
+                        },
+                        updatedAt: {
+                            type: "string",
+                            format: "date-time",
                         }
                     }
                 },
@@ -295,6 +315,14 @@ const options: swaggerJsdoc.Options = {
                         description: {
                             type: "string",
                             example: "Demonstrou evolução significativa em matemática."
+                        },
+                        createdAt: {
+                            type: "string",
+                            format: "date-time"
+                        },
+                        updatedAt: {
+                            type: "string",
+                            format: "date-time"
                         }
                     }
                 },

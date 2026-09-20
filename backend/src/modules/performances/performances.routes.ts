@@ -340,7 +340,7 @@ router.get(
  *
  *       403:
  *         description: Acesso negado
-  *         content:
+ *         content:
  *           application/json:
  *             example:
  *               message: Acesso negado
