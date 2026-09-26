@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { mockRequest, mockResponse } from "../../helpers/http";
 import * as classesServices from "../../../modules/classes/classes.services";
 import { Types } from "mongoose";
-import { create, deleteClassById, list } from "../../../modules/classes/classes.controller";
+import { create, deleteClassById, list, updateClass } from "../../../modules/classes/classes.controller";
 
 const name = "6° A";
 const year = 2026;
@@ -416,3 +416,157 @@ describe("deleteClassById Controller", () => {
         });
     });
 })
+
+describe("updateClass Controller", () => {
+
+    describe("Sucesso", () => {
+
+        it("deve atualizar uma turma com sucesso", async () => {
+
+            const classId = new Types.ObjectId();
+
+            const req = mockRequest(
+                {
+                    name: "Turma B",
+                    year: 2026,
+                },
+                {
+                    id: classId.toString(),
+                },
+                {},
+                { id: "user123" }
+            );
+
+            const res = mockResponse();
+
+            vi.spyOn(classesServices, "updateClassService")
+                .mockResolvedValue({
+                    error: false,
+                    data: {
+                        _id: classId.toString(),
+                        name: "Turma B",
+                        year: 2026,
+                    } as any,
+                });
+
+            await updateClass(req, res);
+
+            expect(classesServices.updateClassService)
+                .toHaveBeenCalledWith(
+                    classId.toString(),
+                    "Turma B",
+                    2026,
+                    "user123",
+                );
+
+            expect(res.status)
+                .toHaveBeenCalledWith(200);
+
+            expect(res.json)
+                .toHaveBeenCalledWith({
+                    message: "Turma atualizada com sucesso",
+                    data: expect.objectContaining({
+                        _id: classId.toString(),
+                        name: "Turma B",
+                        year: 2026,
+                    }),
+                });
+        });
+    });
+
+    describe("Erros", () => {
+
+        it("deve retornar erro quando o service retornar erro", async () => {
+
+            const classId = new Types.ObjectId();
+
+            const req = mockRequest(
+                {
+                    name: "Turma A",
+                    year: 2025,
+                },
+                {
+                    id: classId.toString(),
+                },
+                {},
+                { id: "user123" }
+            );
+
+            const res = mockResponse();
+
+            vi.spyOn(classesServices, "updateClassService")
+                .mockResolvedValue({
+                    error: true,
+                    status: 409,
+                    message: "Já existe outra turma com esse nome nesse ano",
+                });
+
+            await updateClass(req, res);
+
+            expect(classesServices.updateClassService)
+                .toHaveBeenCalledWith(
+                    classId.toString(),
+                    "Turma A",
+                    2025,
+                    "user123",
+                );
+
+            expect(res.status)
+                .toHaveBeenCalledWith(409);
+
+            expect(res.json)
+                .toHaveBeenCalledWith({
+                    message: "Já existe outra turma com esse nome nesse ano",
+                });
+        });
+
+        it("deve retornar erro interno quando updateClassService lançar exceção", async () => {
+
+            const classId = new Types.ObjectId();
+
+            const req = mockRequest(
+                {
+                    name: "Turma B",
+                    year: 2026,
+                },
+                {
+                    id: classId.toString(),
+                },
+                {},
+                { id: "user123" }
+            );
+
+            const res = mockResponse();
+
+            vi.spyOn(classesServices, "updateClassService")
+                .mockRejectedValue(
+                    new Error("Erro inesperado"),
+                );
+
+            const consoleSpy = vi
+                .spyOn(console, "error")
+                .mockImplementation(() => {});
+
+            await updateClass(req, res);
+
+            expect(consoleSpy)
+                .toHaveBeenCalled();
+
+            expect(classesServices.updateClassService)
+                .toHaveBeenCalledWith(
+                    classId.toString(),
+                    "Turma B",
+                    2026,
+                    "user123",
+                );
+
+            expect(res.status)
+                .toHaveBeenCalledWith(500);
+
+            expect(res.json)
+                .toHaveBeenCalledWith({
+                    message: "Erro interno do servidor",
+                });
+        });
+    });
+});

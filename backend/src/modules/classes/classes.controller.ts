@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createClassService, listClassesService, deleteClassService} from "./classes.services";
+import { createClassService, listClassesService, deleteClassService, updateClassService} from "./classes.services";
 
 export const create = async (req: Request, res: Response) => {
     try{
@@ -101,3 +101,33 @@ export const deleteClassById = async (req: Request, res: Response) => {
     }
 }
 
+export const updateClass = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const { name, year } = req.body;
+
+        const result = await updateClassService(
+            id,
+            name,
+            year,
+            req.user.id
+        );
+
+        if (result.error) {
+            return res.status(result.status).json({
+                message: result.message,
+            });
+        }
+
+        return res.status(200).json({
+            message: "Turma atualizada com sucesso",
+            data: result.data,
+        });
+    } catch(error){
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Erro interno do servidor",
+        });
+    }
+};

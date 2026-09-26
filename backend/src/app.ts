@@ -8,7 +8,14 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./docs/swagger";
 
+import cors from "cors";
+
 const app = express();
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  credentials: true,
+}));
 
 app.use(loggerMiddleware);
 

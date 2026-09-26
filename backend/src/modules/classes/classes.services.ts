@@ -122,3 +122,45 @@ export const deleteClassService = async (
         data: undefined,
     };
 };
+
+export const updateClassService = async (
+    id: string,
+    name: string,
+    year: number,
+    userId: string,
+): Promise<ServiceResponse<ClassDocument>> => {
+
+    const classExists = await Class.findOne({
+        name,
+        year,
+        userId,
+        _id: { $ne: id },
+    });
+
+    if(classExists) {
+        return {
+            error: true,
+            status: 409,
+            message: "Já existe outra turma com esse nome nesse ano",
+        };
+    }
+
+    const classUpdated = await Class.findByIdAndUpdate(
+        id,
+        { name, year },
+        { new: true, runValidators: true }
+    );
+
+    if(!classUpdated) {
+        return {
+            error: true,
+            status: 404,
+            message: "Turma não encontrada",
+        };
+    }
+
+    return {
+        error: false,
+        data: classUpdated,
+    };
+};

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { create , list, deleteClassById} from "./classes.controller";
+import { create , list, deleteClassById, updateClass} from "./classes.controller";
 import { authMiddleware } from "../../middlewares/auth.middleware";
 import { validateObjectId } from "../../middlewares/validateObjectId.middleware";
 import { classOwnershipMiddleware } from "../../middlewares/ownership.middleware";
@@ -215,6 +215,80 @@ router.delete(
     validateObjectId(),
     classOwnershipMiddleware,
     deleteClassById
+);
+
+/**
+ * @swagger
+ * /api/classes/{id}:
+ *   put:
+ *     summary: Atualizar uma turma existente
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID da turma
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateClassBody'
+ *     responses:
+ *       200:
+ *         description: Turma atualizada com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Turma atualizada com sucesso
+ *                 data:
+ *                   $ref: '#/components/schemas/ClassResponse'
+ *
+ *       400:
+ *         description: Erro de validação ou ID inválido
+ *
+ *       401:
+ *         description: Token não informado ou inválido
+ *
+ *       403:
+ *         description: Acesso negado
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Acesso negado
+ * 
+ *       404:
+ *         description: Turma não encontrada
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Turma não encontrada
+ *
+ *       409:
+ *         description: Já existe outra turma com esse nome nesse ano
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Já existe outra turma com esse nome nesse ano
+ *
+ *       500:
+ *         description: Erro interno do servidor
+ */
+router.put(
+    "/:id",
+    authMiddleware,
+    validateObjectId(),
+    classOwnershipMiddleware,
+    validate(createClassSchema), 
+    updateClass
 );
 
 export default router;

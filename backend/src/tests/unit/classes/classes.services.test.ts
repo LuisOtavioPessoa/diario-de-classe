@@ -3,6 +3,7 @@ import {
   createClassService,
   listClassesService,
   deleteClassService,
+  updateClassService,
 } from "../../../modules/classes/classes.services";
 import { Class } from "../../../modules/classes/classes.model";
 import { setupClassListMocks } from "../../helpers/setupClassListMocks";
@@ -408,6 +409,119 @@ describe("deleteClassService", () => {
             const result = await deleteClassService("123");
 
             expect(spy).toHaveBeenCalledWith("123");
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(404);
+                expect(result.message).toBe("Turma não encontrada");
+            }
+        });
+    });
+});
+
+describe("updateClassService", () => {
+
+    describe("Sucesso", () => {
+
+        it("deve atualizar uma turma com sucesso", async () => {
+
+            vi.spyOn(Class, "findOne")
+                .mockResolvedValue(null);
+
+            const updatedClass = {
+                _id: "class123",
+                name: "Turma B",
+                year: 2026,
+                userId: "user123",
+            };
+
+            vi.spyOn(Class, "findByIdAndUpdate")
+                .mockResolvedValue(updatedClass as any);
+
+            const result = await updateClassService(
+                "class123",
+                "Turma B",
+                2026,
+                "user123",
+            );
+
+            expect(result.error).toBe(false);
+
+            if (!result.error) {
+                expect(result.data).toEqual(updatedClass);
+            }
+
+            expect(Class.findOne).toHaveBeenCalledWith({
+                name: "Turma B",
+                year: 2026,
+                userId: "user123",
+                _id: { $ne: "class123" },
+            });
+
+            expect(Class.findByIdAndUpdate).toHaveBeenCalledWith(
+                "class123",
+                { name: "Turma B", year: 2026 },
+                { new: true, runValidators: true }
+            );
+        });
+    });
+
+    describe("Erros", () => {
+
+        it("deve retornar erro quando já existir outra turma com mesmo nome e ano", async () => {
+
+            vi.spyOn(Class, "findOne")
+                .mockResolvedValue({} as any);
+
+            const result = await updateClassService(
+                "class123",
+                "Turma A",
+                2025,
+                "user123",
+            );
+
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(409);
+                expect(result.message).toBe(
+                    "Já existe outra turma com esse nome nesse ano",
+                );
+            }
+        });
+
+        it("não deve atualizar quando já existir outra turma com mesmo nome e ano", async () => {
+
+            vi.spyOn(Class, "findOne")
+                .mockResolvedValue({} as any);
+
+            const updateSpy = vi.spyOn(Class, "findByIdAndUpdate");
+
+            await updateClassService(
+                "class123",
+                "Turma A",
+                2025,
+                "user123",
+            );
+
+            expect(updateSpy).not.toHaveBeenCalled();
+        });
+
+        it("deve retornar erro quando a turma não existir", async () => {
+
+            vi.spyOn(Class, "findOne")
+                .mockResolvedValue(null);
+
+            vi.spyOn(Class, "findByIdAndUpdate")
+                .mockResolvedValue(null);
+
+            const result = await updateClassService(
+                "class123",
+                "Turma B",
+                2026,
+                "user123",
+            );
 
             expect(result.error).toBe(true);
 
