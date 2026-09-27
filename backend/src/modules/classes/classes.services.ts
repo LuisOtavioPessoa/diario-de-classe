@@ -1,4 +1,6 @@
 import { Class, ClassDocument } from "./classes.model";
+import { Student } from "../students/students.model";
+import { Performance } from "../performances/performances.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { SortOrder } from "mongoose";
 
@@ -116,6 +118,9 @@ export const deleteClassService = async (
             message: "Turma não encontrada",
         };
     }
+
+    await Student.deleteMany({ classId: id });
+    await Performance.deleteMany({ classId: id });
 
     return {
         error: false,

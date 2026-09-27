@@ -42,6 +42,13 @@ const router = Router();
  *       401:
  *         description: Token não informado ou inválido
  *
+ *       403:
+ *         description: Acesso negado
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: Acesso negado
+ *
  *       404:
  *         description: Aluno ou turma não encontrados
  *         content:

@@ -20,6 +20,7 @@ export const create = async ( req: Request, res: Response) => {
                 month,
                 year,
                 description,
+                req.user.id,
             );
 
         if (result.error) {

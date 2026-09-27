@@ -1,5 +1,6 @@
 import { Student } from "./students.model";
 import { Class } from "../classes/classes.model";
+import { Performance } from "../performances/performances.model";
 import { PaginatedResponse, ServiceResponse } from "../../types/service.types";
 import { IStudent , StudentDocument} from "./students.model";
 import { SortOrder } from "mongoose";
@@ -218,6 +219,8 @@ export const deleteStudentService = async (
             message: "Aluno(a) não encontrado(a)",
         };
     }
+
+    await Performance.deleteMany({ studentId: id });
 
     return {
         error: false,

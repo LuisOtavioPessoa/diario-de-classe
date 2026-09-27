@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { createStudentService, deleteStudentService, getStudentByIdService, updateStudentService, listStudentsByClassService } from "../../../modules/students/students.services";
 import { Student } from "../../../modules/students/students.model";
 import { Class } from "../../../modules/classes/classes.model";
+import { Performance } from "../../../modules/performances/performances.model";
 import { setupStudentListMocks } from "../../helpers/setupStudentListMocks";
 import { fakeForeignClass } from "../../mocks/class";
 
@@ -821,29 +822,35 @@ describe("deleteStudentService", () => {
 
     describe("Sucesso", () => {
 
-        it("deve deletar um aluno com sucesso", async () => {
+        it("deve deletar um aluno com sucesso e remover desempenhos em cascata", async () => {
 
             const spy = vi.spyOn(Student, "findByIdAndDelete")
+                .mockResolvedValue({} as any);
+
+            const performanceSpy = vi.spyOn(Performance, "deleteMany")
                 .mockResolvedValue({} as any);
 
             const result = await deleteStudentService("123");
 
             expect(spy).toHaveBeenCalledWith("123");
+            expect(performanceSpy).toHaveBeenCalledWith({ studentId: "123" });
             expect(result.error).toBe(false);
         });
     });
 
     describe("Erros", () => {
 
-        
-        it("deve retornar erro quando o aluno não existir", async () => {
+        it("deve retornar erro quando o aluno não existir e não disparar deleção em cascata", async () => {
 
             const spy = vi.spyOn(Student, "findByIdAndDelete")
                 .mockResolvedValue(null);
 
+            const performanceSpy = vi.spyOn(Performance, "deleteMany");
+
             const result = await deleteStudentService("123");
 
             expect(spy).toHaveBeenCalledWith("123");
+            expect(performanceSpy).not.toHaveBeenCalled();
 
             expect(result.error).toBe(true);
 
@@ -853,4 +860,4 @@ describe("deleteStudentService", () => {
             }
         });  
     });     
-})
+});

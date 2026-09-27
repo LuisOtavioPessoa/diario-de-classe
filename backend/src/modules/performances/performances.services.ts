@@ -20,6 +20,7 @@ export const createPerformanceService = async (
     month: number,
     year: number,
     description: string,
+    userId: string,
 ): Promise<ServiceResponse<PerformanceDocument>> => {
 
     const classExists = await Class.findById(classId);
@@ -29,6 +30,14 @@ export const createPerformanceService = async (
             error: true,
             status: 404,
             message: "Turma não encontrada",
+        };
+    }
+
+    if (classExists.userId.toString() !== userId) {
+        return {
+            error: true,
+            status: 403,
+            message: "Acesso negado",
         };
     }
 

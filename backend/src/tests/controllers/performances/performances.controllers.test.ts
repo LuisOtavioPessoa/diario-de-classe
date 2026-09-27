@@ -30,7 +30,7 @@ describe("create Controller", () => {
                 },
                 {},
                 {},
-                {},
+                { id: "user123" },
             );
 
             const res = mockResponse();
@@ -56,6 +56,7 @@ describe("create Controller", () => {
                     month,
                     year,
                     description,
+                    "user123",
                 );
 
             expect(res.status)
@@ -89,7 +90,7 @@ describe("create Controller", () => {
                 },
                 {},
                 {},
-                {},
+                { id: "user123" },
             );
 
             const res = mockResponse();
@@ -110,6 +111,7 @@ describe("create Controller", () => {
                     month,
                     year,
                     description,
+                    "user123",
                 );
 
             expect(res.status)
@@ -133,7 +135,7 @@ describe("create Controller", () => {
                 },
                 {},
                 {},
-                {},
+                { id: "user123" },
             );
 
             const res = mockResponse();

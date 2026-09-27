@@ -6,6 +6,8 @@ import {
   updateClassService,
 } from "../../../modules/classes/classes.services";
 import { Class } from "../../../modules/classes/classes.model";
+import { Student } from "../../../modules/students/students.model";
+import { Performance } from "../../../modules/performances/performances.model";
 import { setupClassListMocks } from "../../helpers/setupClassListMocks";
 
 afterEach(() => {
@@ -385,14 +387,22 @@ describe("deleteClassService", () => {
 
     describe("Sucesso", () => {
 
-        it("deve deletar uma turma com sucesso", async () => {
+        it("deve deletar uma turma com sucesso e remover dependentes em cascata", async () => {
 
             const spy = vi.spyOn(Class, "findByIdAndDelete")
+                .mockResolvedValue({} as any);
+
+            const studentSpy = vi.spyOn(Student, "deleteMany")
+                .mockResolvedValue({} as any);
+
+            const performanceSpy = vi.spyOn(Performance, "deleteMany")
                 .mockResolvedValue({} as any);
 
             const result = await deleteClassService("123");
 
             expect(spy).toHaveBeenCalledWith("123");
+            expect(studentSpy).toHaveBeenCalledWith({ classId: "123" });
+            expect(performanceSpy).toHaveBeenCalledWith({ classId: "123" });
             expect(result.error).toBe(false);
 
         });
@@ -401,14 +411,19 @@ describe("deleteClassService", () => {
 
     describe("Erros", () => {
 
-        it("deve retornar erro quando a turma não existir", async () => {
+        it("deve retornar erro quando a turma não existir e não disparar deleção em cascata", async () => {
 
             const spy = vi.spyOn(Class, "findByIdAndDelete")
                 .mockResolvedValue(null);
 
+            const studentSpy = vi.spyOn(Student, "deleteMany");
+            const performanceSpy = vi.spyOn(Performance, "deleteMany");
+
             const result = await deleteClassService("123");
 
             expect(spy).toHaveBeenCalledWith("123");
+            expect(studentSpy).not.toHaveBeenCalled();
+            expect(performanceSpy).not.toHaveBeenCalled();
 
             expect(result.error).toBe(true);
 

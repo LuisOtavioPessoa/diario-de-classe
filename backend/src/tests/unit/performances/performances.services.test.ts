@@ -16,7 +16,12 @@ describe("createPerformanceService", () => {
         it("deve criar uma performance com sucesso", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({ _id: "class123" } as any);
+                .mockResolvedValue({
+                    _id: "class123",
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue({
@@ -46,6 +51,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(result.error).toBe(false);
@@ -92,6 +98,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(result.error).toBe(true);
@@ -120,6 +127,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(studentSpy).not.toHaveBeenCalled()
@@ -134,10 +142,73 @@ describe("createPerformanceService", () => {
             }              
         });
 
+        it("deve retornar erro quando o usuário não for dono da turma", async () => {
+
+            vi.spyOn(Class, "findById")
+                .mockResolvedValue({
+                    _id: "class123",
+                    userId: {
+                        toString: () => "otherUser",
+                    },
+                } as any);
+
+            const studentSpy = vi.spyOn(Student, "findById");
+
+            const result = await createPerformanceService(
+                "100",
+                "class123",
+                2,
+                2026,
+                "Ótimo foco nas aulas",
+                "user123",
+            );
+
+            expect(result.error).toBe(true);
+            expect(studentSpy).not.toHaveBeenCalled();
+
+            if (result.error) {
+                expect(result.status).toBe(403);
+                expect(result.message).toBe("Acesso negado");
+            }
+        });
+
+        it("não deve buscar aluno quando o usuário não for dono da turma", async () => {
+
+            vi.spyOn(Class, "findById")
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "otherUser",
+                    },
+                } as any);
+
+            const studentSpy = vi.spyOn(Student, "findById");
+
+            const result = await createPerformanceService(
+                "100",
+                "class123",
+                2,
+                2026,
+                "Ótimo foco nas aulas",
+                "user123",
+            );
+
+            expect(studentSpy).not.toHaveBeenCalled();
+            expect(result.error).toBe(true);
+
+            if (result.error) {
+                expect(result.status).toBe(403);
+                expect(result.message).toBe("Acesso negado");
+            }
+        });
+
         it("deve retornar erro quando o aluno não existir", async () => {
 
             const classSpy = vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue(null);
@@ -148,6 +219,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(classSpy).toHaveBeenCalledWith("class123");
@@ -165,7 +237,11 @@ describe("createPerformanceService", () => {
         it("não deve consultar Performance.findOne quando o aluno não existir", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue(null);
@@ -178,6 +254,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(findOneSpy).not.toHaveBeenCalled()
@@ -193,7 +270,11 @@ describe("createPerformanceService", () => {
         it("deve retornar erro quando o aluno não pertence à turma", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue({
@@ -208,6 +289,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(result.error).toBe(true);
@@ -221,7 +303,11 @@ describe("createPerformanceService", () => {
         it("não deve criar performance quando o aluno não pertence à turma", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue({
@@ -240,6 +326,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(findOneSpy).not.toHaveBeenCalled()
@@ -255,7 +342,11 @@ describe("createPerformanceService", () => {
         it("deve retornar erro quando já existir uma performance nesse mês e ano", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue({
@@ -273,6 +364,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(result.error).toBe(true);
@@ -286,7 +378,11 @@ describe("createPerformanceService", () => {
         it("não deve criar performance quando ela já existir", async () => {
 
             vi.spyOn(Class, "findById")
-                .mockResolvedValue({} as any);
+                .mockResolvedValue({
+                    userId: {
+                        toString: () => "user123",
+                    },
+                } as any);
 
             vi.spyOn(Student, "findById")
                 .mockResolvedValue({
@@ -306,6 +402,7 @@ describe("createPerformanceService", () => {
                 2,
                 2026,
                 "Ótimo foco nas aulas",
+                "user123",
             );
 
             expect(createSpy).not.toHaveBeenCalled()
